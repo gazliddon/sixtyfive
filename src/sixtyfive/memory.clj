@@ -15,7 +15,8 @@
   (write-block [_ dst src ]
     (let [slice-0 (take dst mem)
           slice-1 (drop (+ dst (count src)) mem )]
-      (vec  (concat (vec slice-0) src (vec slice-1) ))))
+      (->ByteMemory
+        (vec  (concat (vec slice-0) src (vec slice-1))))))
 
   (read-byte [_ addr]
     (bit-and 0xff (nth mem addr)))

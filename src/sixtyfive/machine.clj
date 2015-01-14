@@ -2,6 +2,7 @@
   (:require [sixtyfive.cpu :refer :all]
             [sixtyfive.memory :as M]
             [sixtyfive.opcodes :as OC]
+            [sixtyfive.utils :refer :all]
             )
 
   (:import [sixtyfive.cpu Cpu])
@@ -38,10 +39,6 @@
 (defn read-operand-word [^Machine {:keys [cpu] :as mac}]
   (.read-word mac (get-operand-address cpu)))
 
-(defn go [^Machine {:keys [cpu opcode-table] :as mac}]
-  (let [pc (:PC cpu)
-        func (read-opcode-func mac)]
-    (func mac)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defrecord Prg [^long address data])
@@ -100,7 +97,7 @@
                            (assert false)))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def op-code-factories
+(def opcode-factories
   [(reify OC/IOpCodeFactory
      (get-name [_] "JMP")
 
@@ -131,7 +128,7 @@
   (->Machine
     (mk-cpu)
     (M/mk-byte-memory 65536)
-    (OC/make-op-code-tab op-code-factories mode-to-addr-calc-func)
+    (OC/make-op-code-tab opcode-factories mode-to-addr-calc-func)
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -142,11 +139,20 @@
     [0xee 0x00 0x40    
      0x4c 0x00 0x10]))
 
+(defn go [^Machine {:keys [cpu opcode-table] :as mac}]
+  (let [pc (:PC cpu)
+        opcode (read-opcode-func mac)]
+    opcode
+    ))
 (def mac 
   (->
     (mk-machine)
     (load-prg prg)
     ))
 
-(class (:mem mac))
+(read-opcode-func mac)
+
+
+
+
 
