@@ -125,6 +125,7 @@
        (fn [^Machine m]
          (assert false)))) ])
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn mk-machine []
   (->Machine
@@ -141,17 +142,11 @@
     [0xee 0x00 0x40    
      0x4c 0x00 0x10]))
 
-
 (def mac 
   (->
     (mk-machine)
-    (load-prg prg)))
+    (load-prg prg)
+    ))
 
-
-
-
-
-
-
-
+(class (:mem mac))
 
