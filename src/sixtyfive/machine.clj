@@ -14,49 +14,50 @@
   (calculate-address [_ ^Machine m ]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defprotocol IMachine
+  (get-opcode [_])
+  (get-opcode-obj [_])
+  (get-operand-addr [_])
+  (get-operand-byte [_])
+  (get-operand-word [_])
+  (swap-mem [_ func]))
 
 (defrecord Machine [^Cpu cpu mem opcode-table ]
-  M/IMemory
-  (read-byte [this addr]
-    (.read-byte (:mem this) addr ))
+  M/IMemoryReader
+  (read-word [{:keys [mem] } addr]
+    (.read-word mem addr))
 
-  (write-byte [{:keys [mem] :as this} addr v]
-    (let [mem' (.write-byte mem addr v)]
-      (assoc this :mem mem')))
+  (read-byte [{:keys [mem] } addr]
+    (.read-word mem addr) )
 
-  (read-block [this addr size]
-    (.read-block (:mem this) addr size ))
+  (read-block [{:keys [mem] } src size]
+    (.read-block mem src size)  )
 
-  (write-block [{:keys [mem] :as this} addr src]
-    (let [mem' (.write-block mem addr src)]
-      (assoc this :mem mem'))))
+  IMachine
+  (get-opcode [{:keys [cpu ] :as m}]
+    (.read-byte m (get-pc cpu)))
 
-(defn read-opcode [^Machine {:keys [cpu] :as mac}]
-  (.read-byte mac (:PC cpu)))
+  (get-opcode-obj [{:keys [cpu mem opcode-table] :as m}]
+    (nth opcode-table (get-opcode m)))
 
-(defn read-opcode-func [^Machine {:keys [opcode-table] :as mac}]
-  (nth opcode-table (read-opcode mac)))
+  (get-operand-addr [{:keys [cpu] :as m}]
+    (.read-byte m (inc (get-pc cpu))) )
+  
+  (get-operand-byte[m] 
+    (.read-byte m (get-operand-addr m)))
 
-(defn read-operand-byte [^Machine {:keys [cpu] :as mac}]
-  (.read-byte mac (get-operand-address cpu)))
+  (get-operand-word[m] 
+    (.read-word m (get-operand-addr m)))
 
-(defn read-lh [m addr]
-  (.read-block m addr 2))
-
-(defn read-word [m addr]
-  (let [[l h] (read-lh m addr) ]
-    (+ l (* h 0x100))))
-
-(defn read-operand-word [^Machine {:keys [cpu] :as mac}]
-  (let [pc (get-pc cpu) ]
-    (read-word mac (inc pc) )))
+  (swap-mem [this func]
+    (assoc this :mem (func (:mem this)))) )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defrecord Prg [^long address data])
 
 (defn load-prg [^Machine {:keys [cpu] :as mac} ^Prg {:keys [address data] :as prg}]
   (-> mac
-      (.write-block address data)
+      (.swap-mem #(.write-block %1 address data))
       (assoc :cpu (set-pc cpu address))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -66,26 +67,26 @@
                    (get-operand-size [_]
                      1)
                    (calculate-address [_  mac]
-                     (read-operand-byte mac)))
+                     (.get-operand-byte mac)))
 
    :zero-page    (reify IAddrMode
                    (get-operand-size [_]
                      1)
-                   (calculate-address [_  mac]
-                     (->> (read-operand-byte mac)
-                          (.read-word mac))))
+                   (calculate-address [_  {:keys [mem] :as m}]
+                     (->> (.get-operand-byte m)
+                          (.read-word mem))))
 
    :absolute     (reify IAddrMode
                    (get-operand-size [_]
                      2)
-                   (calculate-address [_  mac]
-                     (read-operand-word mac)))
+                   (calculate-address [_  m]
+                     (.get-operand-word m)))
 
    :absolute-x   (reify IAddrMode
                    (get-operand-size [_]
                      2)
                    (calculate-address [_ {:keys [cpu] :as mac}]
-                     (->> (read-operand-word mac)
+                     (->> (.get-operand-word mac)
                           (+ (:X cpu))
                           (make-word))))
 
@@ -93,7 +94,7 @@
                    (get-operand-size [_]
                      2)
                    (calculate-address [_ {:keys [cpu] :as mac}]
-                     (->> (read-operand-word mac)
+                     (->> (.get-operand-word mac)
                           (+ (:Y cpu))
                           (make-word))))
 
@@ -116,15 +117,42 @@
                            (assert false)))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 (defn next-opcode [^Machine {:keys [cpu] :as m} addr-mode]
   (let [pc (get-pc cpu)
-        pc' (+ 1 (.get-operand-size addr-mode))]
+        pc' (+ pc 1 (.get-operand-size addr-mode))]
     (assoc m :cpu (set-pc cpu pc'))))
 
+(defn branch [^Machine {:keys [cpu] :as m} offset]
+  (assert false))
+
+(defn jump [^Machine {:keys [cpu] :as m} addr]
+  (println "GOT TO JUMP1")
+  (assert false))
+
+(defn fetch-word [^Machine m addr-mode]
+  (let [addr (.calculate-address addr-mode m)]
+    (.read-word m addr)))
+
+(defn fetch-byte [^Machine m addr-mode]
+  (let [addr (.calculate-address addr-mode m)]
+    (.read-byte m addr)))
+
 (def opcode-factories
-  [ (reify OC/IOpCodeFactory
+  [(reify
+     OC/IOpCodeFactory
+     (get-name [_] "JMP")
+
+     (get-addr-modes [_]
+       { 0x4c :absolute})
+
+     (make-func [_ addr-mode]
+       (fn [^Machine m]
+         (->> (.calculate-address addr-mode m)
+              (.read-word m )
+              (jump m))))) 
+
+   (reify
+     OC/IOpCodeFactory
      (get-name [_] "INC")
 
      (get-addr-modes [_]
@@ -162,18 +190,25 @@
 
 (defn go [^Machine {:keys [cpu opcode-table] :as mac}]
   (let [pc (:PC cpu)
-        opcode (read-opcode-func mac) ]
+        opcode (.get-opcode-obj mac) ]
     (.exec-opcode opcode mac)
     ))
 
 (defn pk [^Machine m ^long addr]
   (.read-byte m addr))
 
+(defn dump-cpu [^Machine {:keys [cpu] :as m}]
+  (println cpu)
+  m
+  )  
+
 (def mac
   (-> (mk-machine)
       (load-prg prg)
+      (dump-cpu)
       (go)
-      (pk 0x100)
+      (dump-cpu)
+      (go)
       ))
 
 
