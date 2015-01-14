@@ -59,3 +59,8 @@
 (defn make-op-code-tab [opcode-factories id-to-addr-mode]
   (let [ret-tab (vec  (take 256 (repeat unsupported-op-code))) ]
     (reduce (fn [t v] (add-opcode-functions t v id-to-addr-mode)) ret-tab opcode-factories)))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Some testing stuffS
