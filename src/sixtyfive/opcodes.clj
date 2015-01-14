@@ -10,29 +10,27 @@
   (make-func [_ addr-mode]) )
 
 (defprotocol IOpCode
-  (exec [_ ^Machine mac])
+  (exec-opcode [_ mac])
   (get-size [_])
   (get-cycles [_]))
 
 (defn mk-opcode [opcode addr-mode]
-  (let [func [make-func opcode addr-mode]]
-    (reify IOpCode
+  (let [func (.make-func opcode addr-mode )
+        size (inc (.get-operand-size addr-mode))
+        cycles 1]
 
-      (exec [_ mac]
+    (reify IOpCode
+      (exec-opcode [_ mac]
         (func mac))
 
-      (get-size [_]
-        1)
+      (get-size [_] size)
 
-      (get-cycles [_]
-        1))))
+      (get-cycles [_] cycles))))
 
 (def unsupported-op-code
-
   (reify IOpCode
-      (exec [_ mac]
-        (assert false)
-        )
+      (exec-opcode [_ mac]
+        (assert false))
 
       (get-size [_]
         99)

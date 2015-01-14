@@ -7,22 +7,22 @@
   (read-byte [_ ^long addr])
   (write-byte [_ ^long addr ^long v]))
 
-(defrecord ByteMemory [mem]
+(defrecord ByteMemory [data]
   IMemory
   (read-block [_ src size]
-    (vec (take size (drop src))))
+    (vec (take size (drop src data))))
 
   (write-block [_ dst src ]
-    (let [slice-0 (take dst mem)
-          slice-1 (drop (+ dst (count src)) mem )]
+    (let [slice-0 (take dst data)
+          slice-1 (drop (+ dst (count src)) data )]
       (->ByteMemory
         (vec  (concat (vec slice-0) src (vec slice-1))))))
 
   (read-byte [_ addr]
-    (bit-and 0xff (nth mem addr)))
+    (bit-and 0xff (nth data addr)))
 
   (write-byte [this addr v]
-    (assoc-in this [:mem addr] (bit-and 0xff v) )))
+    (assoc-in this [:data addr] (bit-and 0xff v) )))
 
 (defn mk-byte-memory [size]
   (->ByteMemory

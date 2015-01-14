@@ -18,14 +18,17 @@
   M/IMemory
   (read-byte [this addr]
     (.read-byte (:mem this) addr ))
-  (write-byte [this addr val]
-    (assoc this :mem (.write-byte (:mem this) this addr val )))
+
+  (write-byte [{:keys [mem] :as this} addr v]
+    (let [mem' (.write-byte mem addr v)]
+      (assoc this :mem mem')))
+
   (read-block [this addr size]
     (.read-block (:mem this) addr size ))
+
   (write-block [{:keys [mem] :as this} addr src]
-    (let [new-mem (.write-block mem addr src)]
-      (assoc this :mem new-mem))
-    ))
+    (let [mem' (.write-block mem addr src)]
+      (assoc this :mem mem'))))
 
 (defn read-opcode [^Machine {:keys [cpu] :as mac}]
   (.read-byte mac (:PC cpu)))
@@ -36,8 +39,16 @@
 (defn read-operand-byte [^Machine {:keys [cpu] :as mac}]
   (.read-byte mac (get-operand-address cpu)))
 
+(defn read-lh [m addr]
+  (.read-block m addr 2))
+
+(defn read-word [m addr]
+  (let [[l h] (read-lh m addr) ]
+    (+ l (* h 0x100))))
+
 (defn read-operand-word [^Machine {:keys [cpu] :as mac}]
-  (.read-word mac (get-operand-address cpu)))
+  (let [pc (get-pc cpu) ]
+    (read-word mac (inc pc) )))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -65,7 +76,7 @@
    :absolute     (reify IAddrMode
                    (get-operand-size [_] 2)
                    (calculate-address [_  mac]
-                     (read-operand-byte mac)))
+                     (read-operand-word mac)))
 
    :absolute-x   (reify IAddrMode
                    (get-operand-size [_] 2)
@@ -97,6 +108,12 @@
                            (assert false)))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn next-op [^Machine {:keys [cpu] :as m} addr-mode]
+  (let [pc (get-pc cpu)
+        pc' (+ pc 1 (.get-operand-size addr-mode)) ]
+    (assoc m :cpu (set-pc cpu pc'))))
+
 (def opcode-factories
   [(reify OC/IOpCodeFactory
      (get-name [_] "JMP")
@@ -107,7 +124,11 @@
 
      (make-func [_ addr-mode]
        (fn [^Machine m]
-         (assert false))))
+         (println "HERE I AM IN JMP")
+         (println "tryin addr mode ->")
+         (println addr-mode)
+         (assert false)      
+         )))
 
    (reify OC/IOpCodeFactory
      (get-name [_] "INC")
@@ -119,9 +140,12 @@
         0xfe :absolute-x})
 
      (make-func [_ addr-mode]
-       (fn [^Machine m]
-         (assert false)))) ])
-
+       (fn [^Machine m opcode]
+         (let [addr (.calculate-address addr-mode m)
+               v (.read-byte m addr) ]
+           (-> m
+               (.write-byte addr (inc v))
+               (next-op addr-mode))))))])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn mk-machine []
@@ -135,23 +159,27 @@
 ;; Let's test it!
 (def prg
   (->Prg
-    0x4000
-    [0xee 0x00 0x40    
+    0x1000
+    [0xee 0x00 0x01
      0x4c 0x00 0x10]))
 
 (defn go [^Machine {:keys [cpu opcode-table] :as mac}]
   (let [pc (:PC cpu)
-        opcode (read-opcode-func mac)]
-    opcode
-    ))
-(def mac 
-  (->
-    (mk-machine)
-    (load-prg prg)
+        opcode (read-opcode-func mac)
+        size (.g)]
+    (.exec-opcode opcode mac)
     ))
 
-(read-opcode-func mac)
+(defn pk [^Machine m ^long addr]
+  (.read-byte m addr)
+  )
 
+(def mac
+  (-> (mk-machine)
+      (load-prg prg)
+      (go)
+      (pk 0x100)
+      ))
 
 
 
