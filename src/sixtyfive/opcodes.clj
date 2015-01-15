@@ -10,6 +10,7 @@
   (make-func [_ addr-mode]) )
 
 (defprotocol IOpCode
+  (get-factory [_])
   (exec-opcode [_ mac])
   (get-size [_])
   (get-cycles [_]))
@@ -20,6 +21,10 @@
         cycles 1]
 
     (reify IOpCode
+
+      (get-factory [_]
+        opcode)
+
       (exec-opcode [_ mac]
         (func mac))
 
@@ -29,14 +34,17 @@
 
 (def unsupported-op-code
   (reify IOpCode
-      (exec-opcode [_ mac]
-        (assert false))
+    (get-factory [_]
+      (assert false))
 
-      (get-size [_]
-        99)
+    (exec-opcode [_ mac]
+      (assert false))
 
-      (get-cycles [_]
-        99))
+    (get-size [_]
+      99)
+
+    (get-cycles [_]
+      99))
   )
 
 (defn get-opcode-implementations
