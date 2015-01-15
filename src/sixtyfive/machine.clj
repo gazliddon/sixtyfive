@@ -184,8 +184,8 @@
          (let [addr (.calculate-address addr-mode m)
                v (.read-byte m addr)
                m' (.write-byte m addr (inc v))]
+           (println (str "Addr is " addr))
            m'
-           
            ))))])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -224,10 +224,13 @@
   (-> (mk-machine)
       (load-prg prg)
       (dump-cpu)
-      (go)
-      (dump-cpu)
-      (gpeek 0x100)
+      (.get-operand-word)
       ))
 
-
+(->
+  (M/mk-byte-memory 10)
+  (.write-byte 0 1)
+  (.write-byte 1 2)
+  (.read-word 0)
+     )
 
