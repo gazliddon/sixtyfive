@@ -1,5 +1,5 @@
 (ns sixtyfive.machine
-  (:require [sixtyfive.cpu :refer :all]
+  (:require [sixtyfive.cpu :as CPU]
             [sixtyfive.memory :as M]
             [sixtyfive.opcodes :as OC]
             [sixtyfive.utils :refer :all]
@@ -15,11 +15,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defprotocol IMachine
+  (get-pc [_ ])
+  (set-pc [_ val])
   (get-opcode [_])
+
+  (next-opcode [_ addr-mode])
+
   (get-opcode-obj [_])
   (get-operand-addr [_])
   (get-operand-byte [_])
   (get-operand-word [_])
+
   (swap-cpu [_ func]) 
   (swap-mem [_ func]))
 
@@ -46,20 +52,29 @@
     (swap-mem this #(.write-block %1 dst src)))
 
   IMachine
+  (set-pc [ this addr ]
+    (.swap-cpu this #(CPU/set-pc %1 addr)))
+
+  (get-pc [{:keys [cpu]}]
+    (CPU/get-pc cpu))
+  
   (get-opcode [this]
-    (.read-byte this (get-pc cpu)))
+    (.read-byte this (.get-pc this)))
 
   (get-opcode-obj [this]
-    (nth opcode-table (get-opcode this)))
+    (nth opcode-table (.get-opcode this)))
 
-  (get-operand-addr [{:keys [cpu] :as this}]
-    (.read-byte this (inc (get-pc cpu))) )
+  (get-operand-addr [this]
+    (inc (.get-pc this)) )
   
-  (get-operand-byte[m] 
-    (.read-byte m (get-operand-addr m)))
+  (get-operand-byte[this] 
+    (.read-byte this (.get-operand-addr this)))
 
-  (get-operand-word[m] 
-    (.read-word m (get-operand-addr m)))
+  (get-operand-word[this] 
+    (.read-word this (.get-operand-addr this)))
+
+  (next-opcode [this addr-mode]
+    (.set-pc this (+ 1 (.get-operand-size addr-mode) (.get-pc this))))
 
   (swap-cpu [this func]
     (assoc this :cpu (func (:cpu this))))  
@@ -73,7 +88,7 @@
 (defn load-prg [^Machine {:keys [cpu] :as mac} ^Prg {:keys [address data] :as prg}]
   (-> mac
       (.swap-mem #(.write-block %1 address data))
-      (.swap-cpu #(set-pc %1 address))))
+      (.swap-cpu #(CPU/set-pc %1 address))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 6502 addressing modes
@@ -105,7 +120,7 @@
                    (calculate-address [_ {:keys [cpu] :as mac}]
                      (->> (.get-operand-word mac)
                           (+ (:X cpu))
-                          (make-word))))
+                          (CPU/make-word))))
 
    :absolute-y   (reify IAddrMode
                    (get-operand-size [_]
@@ -113,7 +128,7 @@
                    (calculate-address [_ {:keys [cpu] :as mac}]
                      (->> (.get-operand-word mac)
                           (+ (:Y cpu))
-                          (make-word))))
+                          (CPU/make-word))))
 
    :zero-page-x  (reify IAddrMode
                    (get-operand-size [_]
@@ -134,17 +149,11 @@
                            (assert false)))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn next-opcode [^Machine {:keys [cpu] :as m} addr-mode]
-  (let [pc (get-pc cpu)
-        pc' (+ pc 1 (.get-operand-size addr-mode))]
-    (assoc m :cpu (set-pc cpu pc'))))
-
 (defn branch [^Machine {:keys [cpu] :as m} offset]
   (assert false))
 
-(defn jump [^Machine {:keys [cpu] :as m} addr]
-  (println "GOT TO JUMP1")
-  (assert false))
+(defn jump [^Machine m addr]
+  (.set-pc m addr))
 
 (defn fetch-word [^Machine m addr-mode]
   (let [addr (.calculate-address addr-mode m)]
@@ -153,6 +162,12 @@
 (defn fetch-byte [^Machine m addr-mode]
   (let [addr (.calculate-address addr-mode m)]
     (.read-byte m addr)))
+
+
+(defn glog [o]
+  (println (str o))
+  o
+  )
 
 (def opcode-factories
   [(reify
@@ -165,8 +180,7 @@
      (make-func [_ addr-mode]
        (fn [^Machine m]
          (->> (.calculate-address addr-mode m)
-              (.read-word m )
-              (jump m))))) 
+              (.set-pc m))))) 
 
    (reify
      OC/IOpCodeFactory
@@ -179,21 +193,20 @@
         0xfe :absolute-x})
 
      (make-func [_ addr-mode]
-       (fn [^Machine m]
-         
-         (let [addr (.calculate-address addr-mode m)
-               v (.read-byte m addr)
-               m' (.write-byte m addr (inc v))]
-           m'
-           
-           ))))])
+       (fn [^Machine machine]
+         (let [addr (.calculate-address addr-mode machine)]
+           ( -> 
+             (->> (.read-byte machine addr)
+                  (inc)
+                  (.write-byte machine addr))
+             (.next-opcode addr-mode))))))])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def op-code-table (OC/make-op-code-tab opcode-factories mode-to-addr-calc-func))
 
 (defn mk-machine []
   (->Machine
-    (mk-cpu)
+    (CPU/mk-cpu)
     (M/mk-byte-memory 65536)
     op-code-table
     ))
@@ -203,14 +216,13 @@
 (def prg
   (->Prg
     0x1000
-    [0xee 0x00 0x01
+    [0xee 0xff 0x0f
      0x4c 0x00 0x10]))
 
 (defn go [^Machine {:keys [cpu opcode-table] :as mac}]
   (let [pc (:PC cpu)
         opcode (.get-opcode-obj mac) ]
-    (.exec-opcode opcode mac)
-    ))
+    (.exec-opcode opcode mac)))
 
 (defn gpeek [^Machine m ^long addr]
   (.read-byte m addr))
@@ -226,8 +238,17 @@
       (dump-cpu)
       (go)
       (dump-cpu)
-      (gpeek 0x100)
+      (.read-byte 0x1001)
       ))
 
-
+(-> (mk-machine)
+      (load-prg prg)
+      (dump-cpu)
+      (go)
+      (dump-cpu)
+      (go)
+      (dump-cpu)
+      (go)
+      (.read-block 0xfff 10)
+      )
 
