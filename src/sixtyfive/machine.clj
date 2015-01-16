@@ -312,13 +312,10 @@
 (def prg
   (->Prg
     0x1000
-    [
-     0xa9 0xff
+    [0xa9 0xff
      0xee 0xff 0x0f
      0xa9 0x00
      0x4c 0x00 0x10]))
-
-
 
 (defn gpeek [^Machine m ^long addr]
   (.read-byte m addr))
@@ -331,8 +328,9 @@
     m))  
 
 (defn diass [^Machine m]
-  (let [diss (.disassemble m (.get-pc m))]
-    (println diss)
+  (let [pc (.get-pc m)
+        diss (.disassemble m (.get-pc m))]
+    (println (str pc ": " diss))
     m
     )
   )
@@ -341,22 +339,18 @@
   "Done"
   )
 
-
-
 (-> (mk-machine)
     (load-prg prg)
     (diass)
-    (.step)
+    (step)
     (diass)
-    (.step)
+    (step)
     (diass)
-    (.step)
+    (step)
     (diass)
-    (.step)
+    (step)
     (diass)
-    (dump-cpu)
-    (finish)
-    )
+    (finish))
 
 
 
