@@ -24,17 +24,6 @@
             reverse
             (apply function)))))
 
-; EXAMPLES
-; ;one argument, doesn't change anything
-; ((flip :foo) {:foo "bar"}) => "bar"
-;
-; ;two arguments, reverses order
-; ((flip -) 1 2) => 1
-;
-; ;handles an arbitrary number of arguments
-; (> 1 2 3 4 5) => false
-; ((flip >) 1 2 3 4 5) => true
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defprotocol IAddrMode
   (get-str [_])
@@ -132,6 +121,12 @@
   (-> mac
       (.swap-mem #(.write-block %1 address data))
       (.swap-cpu #(CPU/set-pc %1 address))))
+
+
+(defprotocol IMonitor
+  (get-regs [_])
+  (step [_])
+  (set-breakpoint [_]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 6502 addressing modes
