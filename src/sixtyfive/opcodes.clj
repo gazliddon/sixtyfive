@@ -11,24 +11,27 @@
 
 (defprotocol IOpCode
   (get-factory [_])
+  (get-addr-mode [_])
   (exec-opcode [_ mac])
   (get-size [_])
   (get-cycles [_]))
 
-(defn mk-opcode [opcode addr-mode]
-  (let [func (.make-func opcode addr-mode )
-        size (inc (.get-operand-size addr-mode))
+(defn mk-opcode [opcode-factory addr-mode]
+  (let [func (.make-func opcode-factory addr-mode )
         cycles 1]
 
     (reify IOpCode
+      (get-addr-mode [_]
+        addr-mode)
 
       (get-factory [_]
-        opcode)
+        opcode-factory)
 
       (exec-opcode [_ mac]
         (func mac))
 
-      (get-size [_] size)
+      (get-size [_]
+        (inc (.get-operand-size addr-mode)))
 
       (get-cycles [_] cycles))))
 
@@ -38,6 +41,9 @@
       (assert false))
 
     (exec-opcode [_ mac]
+      (assert false))
+
+    (get-addr-mode [_]
       (assert false))
 
     (get-size [_]

@@ -82,4 +82,11 @@
 (defn get-pc [^Cpu {:keys [PC]}]
   PC)
 
+(defn set-reg [^Cpu cpu reg v]
+  (assoc cpu reg (make-byte v)))
+
+(defn get-reg [^Cpu cpu reg]
+  (reg cpu))
+
+
 
