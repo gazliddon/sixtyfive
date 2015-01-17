@@ -1,6 +1,48 @@
 (ns sixtyfive.opcodes6502
   )
 
+(def addressing-modes
+  {:absolute     {:help-text   ""
+                  :disassembly "%1 %2"
+                  :size        "3"}
+
+   :absolute-x   {:help-text   ""
+                  :disassembly "%1 %2,X"
+                  :size        "3"}
+
+   :accumulator  {:help-text   ""
+                  :disassembly "%1 A"
+                  :size        "2"}
+
+   :immediate    {:help-text   ""
+                  :disassembly "%1 #%2"
+                  :size        "2"}
+
+   :implied      {:help-text   ""
+                  :disassembly "%1"
+                  :size        "1"}
+
+   :indirect     {:help-text   ""
+                  :disassembly "%1 (%2)"
+                  :size        "3"}
+
+   :indirect-x   {:help-text   ""
+                  :disassembly "%1 (%2,X)"
+                  :size        "2"}
+
+   :indirect-y   {:help-text   ""
+                  :disassembly "%1 (%2X),Y"
+                  :size        "2"}
+
+   :zero-page    {:help-text   ""
+                  :disassembly "%1 %2"
+                  :size        "2"}
+
+   :zero-page-x  {:help-text   ""
+                  :disassembly "%1 %2,X"
+                  :size        "2"}
+   })
+
 (def op-codes
   [{:opcode :ADC
     :mnemonic       "ADC"
@@ -103,17 +145,18 @@
                        0xc4 :zero-page  ;; size 2  3 cycles
                        0xcc :absolute   ;; size 3  4 cycles
                        }}
-{:opcode :DEC
- :mnemonic       "DEC"
- :help-text      "DECrement memory"
 
- :flags          "S Z"
+  {:opcode :DEC
+   :mnemonic       "DEC"
+   :help-text      "DECrement memory"
 
- :addressing-modes {0xc6 :zero-page    ;; size 2  5 cycles
-                    0xd6 :zero-page-x  ;; size 2  6 cycles
-                    0xce :absolute     ;; size 3  6 cycles
-                    0xde :absolute-x   ;; size 3  7 cycles
-                    }}
+   :flags          "S Z"
+
+   :addressing-modes {0xc6 :zero-page    ;; size 2  5 cycles
+                      0xd6 :zero-page-x  ;; size 2  6 cycles
+                      0xce :absolute     ;; size 3  6 cycles
+                      0xde :absolute-x   ;; size 3  7 cycles
+                      }}
 
 {:opcode :EOR
  :mnemonic       "EOR"
