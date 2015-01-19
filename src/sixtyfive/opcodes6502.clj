@@ -41,6 +41,11 @@
    :zero-page-x  {:help-text   ""
                   :disassembly "%1 %2,X"
                   :size        2}
+
+   :unknown {:help-text ""
+             :disassembly "%1 (UNKNOWN"
+             :size 1
+             }
    })
 
 
@@ -389,9 +394,14 @@
                     0x94 :zero-page-x  ;; size 2  4 cycles
                     0x8c :absolute     ;; size 3  4 cycles
                     }}
-
 ] )
 
+
+(defn mk-opcode-entry [opcode addressing-mode addressing-modes]
+  (merge {:addressing-mode (addressing-mode addressing-modes)
+   } (dissoc opocode :addre))
+  
+  )
 ;; Construct Opcode -> opcode table
 (defn- mk-opcode-table
   "Take the opcodes and make a table indexed by opcode hex"
@@ -407,28 +417,22 @@
 
 (defn- mk-big-opcode-table [all-opcodes addressing-modes]
   (reduce (fn [t opcode]
-            (mk-opcode-table opcode addressing-modes t) ) {} all-opcodes)
-  )
+            (mk-opcode-table opcode addressing-modes t) ) {} all-opcodes))
 
 (def opcodes
   (mk-big-opcode-table all-opcodes addressing-modes))
 
-(def- unknown-opcode
-  {:opcode :UNKNOWN
-   :operand nil
-   :effective-address nil }
-  )
+(def unknown-opcode
+  {:addressing-mode (:unknown)
+   :opcode :UNKNOWN})
 
 ;; Fetch and decode the instruction
 (defn fetch-instruction [machine cpu addr]
   (let [ins-byte (.read-byte machine addr)
-        instruction (ins-byte opcode)
+        instruction (get opcodes ins-byte unknown-opcode)
         ])
-
-
   {:opcode 1
    :operand 1
    :effective-address 1}
-  
   )
 
