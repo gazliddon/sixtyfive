@@ -4,43 +4,43 @@
 (def addressing-modes
   {:absolute     {:help-text   ""
                   :disassembly "%1 %2"
-                  :size        "3"}
+                  :size        3}
 
    :absolute-x   {:help-text   ""
                   :disassembly "%1 %2,X"
-                  :size        "3"}
+                  :size        3}
 
    :accumulator  {:help-text   ""
                   :disassembly "%1 A"
-                  :size        "2"}
+                  :size        2}
 
    :immediate    {:help-text   ""
                   :disassembly "%1 #%2"
-                  :size        "2"}
+                  :size        2}
 
    :implied      {:help-text   ""
                   :disassembly "%1"
-                  :size        "1"}
+                  :size        1}
 
    :indirect     {:help-text   ""
                   :disassembly "%1 (%2)"
-                  :size        "3"}
+                  :size        3}
 
    :indirect-x   {:help-text   ""
                   :disassembly "%1 (%2,X)"
-                  :size        "2"}
+                  :size        2}
 
    :indirect-y   {:help-text   ""
                   :disassembly "%1 (%2X),Y"
-                  :size        "2"}
+                  :size        2}
 
    :zero-page    {:help-text   ""
                   :disassembly "%1 %2"
-                  :size        "2"}
+                  :size        2}
 
    :zero-page-x  {:help-text   ""
                   :disassembly "%1 %2,X"
-                  :size        "2"}
+                  :size        2}
    })
 
 (def op-codes
@@ -383,3 +383,29 @@
                     }}
 
 ] )
+
+;; Construct Opcode -> opcode table
+(defn mk-opcode-table
+  "Take the opcodes and make a table indexed by opcode hex"
+  [opcode addressing-modes tab]
+  (let [addr-modes (map identity (:addressing-modes opcode))
+        as-map (map identity addr-modes)
+        my-fn ( fn [tab [ hex addr-mode]]
+                    (assoc tab hex {:addressing-mode (addr-mode addressing-modes)
+                                    :opcode (:opcode opcode)
+                                    })) ]
+    (reduce my-fn tab as-map)     )
+  )
+
+(defn mk-big-opcode-table [all-opcodes addressing-modes]
+  (reduce (fn [t opcode]
+            (mk-opcode-table opcode addressing-modes t) ) {} all-opcodes)
+  )
+
+(mk-big-opcode-table op-codes addressing-modes)
+
+
+
+
+
+
