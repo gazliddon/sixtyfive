@@ -16,10 +16,12 @@
   IMemoryReader
   (read-block [_ src size]
     (vec (take size (drop src data))))
+
   (read-word [m addr]
     (let [l (.read-byte m addr)
           h (.read-byte m (inc addr)) ]
       (+ l (* 0x100 h))))
+
   (read-byte [_ addr]
     (bit-and 0xff (nth data addr)))
 
