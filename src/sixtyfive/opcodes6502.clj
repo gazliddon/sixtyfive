@@ -43,8 +43,16 @@
                   :size        2}
    })
 
-(def op-codes
-  [{:opcode :ADC
+
+
+
+
+
+(def all-opcodes
+  [
+   
+   
+   {:opcode :ADC
     :mnemonic       "ADC"
     :help-text      "ADd with Carry"
 
@@ -385,7 +393,7 @@
 ] )
 
 ;; Construct Opcode -> opcode table
-(defn mk-opcode-table
+(defn- mk-opcode-table
   "Take the opcodes and make a table indexed by opcode hex"
   [opcode addressing-modes tab]
   (let [addr-modes (map identity (:addressing-modes opcode))
@@ -397,15 +405,30 @@
     (reduce my-fn tab as-map)     )
   )
 
-(defn mk-big-opcode-table [all-opcodes addressing-modes]
+(defn- mk-big-opcode-table [all-opcodes addressing-modes]
   (reduce (fn [t opcode]
             (mk-opcode-table opcode addressing-modes t) ) {} all-opcodes)
   )
 
-(mk-big-opcode-table op-codes addressing-modes)
+(def opcodes
+  (mk-big-opcode-table all-opcodes addressing-modes))
+
+(def- unknown-opcode
+  {:opcode :UNKNOWN
+   :operand nil
+   :effective-address nil }
+  )
+
+;; Fetch and decode the instruction
+(defn fetch-instruction [machine cpu addr]
+  (let [ins-byte (.read-byte machine addr)
+        instruction (ins-byte opcode)
+        ])
 
 
-
-
-
+  {:opcode 1
+   :operand 1
+   :effective-address 1}
+  
+  )
 
