@@ -1,19 +1,10 @@
 (ns sixtyfive.memory
-  (:gen-class))
-
-(defprotocol IMemoryReader
-  (read-word [_ ^long addr])
-  (read-byte [_ ^long addr])
-  (read-block [_ ^long src ^long size]))
-
-(defprotocol IMemoryWriter
-  (write-block [_ ^long dst src])
-  (write-byte [_ ^long addr ^long v])
-  (write-word [_ ^long addr ^long v]))
+  (:require [sixtyfive.protocols :as P])
+  )
 
 (defrecord ByteMemory [data]
 
-  IMemoryReader
+  P/IMemoryReader
   (read-block [_ src size]
     (vec (take size (drop src data))))
 
@@ -26,7 +17,7 @@
     (bit-and 0xff (nth data addr)))
 
 
-  IMemoryWriter
+  P/IMemoryWriter
   (write-block [{:keys [data] :as m} dst src ]
     (let [slice-0 (take dst data)
           slice-1 (drop (+ dst (count src)) data )]

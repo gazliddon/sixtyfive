@@ -1,5 +1,5 @@
 (ns sixtyfive.cpu
-  (:gen-class))
+  )
 
 (set! *warn-on-reflection* true)
 

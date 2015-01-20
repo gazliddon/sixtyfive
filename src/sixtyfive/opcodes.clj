@@ -1,20 +1,8 @@
 (ns sixtyfive.opcodes
-  (:require [sixtyfive.cpu :refer :all])
-  (:import [sixtyfive.cpu Cpu]
-           )
-  (:gen-class))
-
-(defprotocol IOpCodeFactory
-  (get-name [_])
-  (get-addr-modes [_])
-  (make-func [_ addr-mode]) )
-
-(defprotocol IOpCode
-  (get-factory [_])
-  (get-addr-mode [_])
-  (exec-opcode [_ mac])
-  (get-size [_])
-  (get-cycles [_]))
+  (:require [sixtyfive.cpu :as CPU]
+            [sixtyfive.protocols :refer :all])
+  
+  )
 
 (defn mk-opcode [opcode-factory addr-mode]
   (let [func (.make-func opcode-factory addr-mode )
@@ -77,4 +65,3 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; S.ome testing stuffS
