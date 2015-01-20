@@ -48,16 +48,9 @@
              }
    })
 
-
-
-
-
-
 (def all-opcodes
   [
-   
-   
-   {:opcode :ADC
+   {:opcode :ADCa
     :mnemonic       "ADC"
     :help-text      "ADd with Carry"
 
@@ -148,28 +141,18 @@
                        0xec :absolute   ;; size 3  4 cycles
                        }}
 
-   {:opcode :CPY
-    :mnemonic       "CPY"
-    :help-text      "ComPare Y register"
 
-    :flags          "S Z C"
+   {:opcode :INC
+    :mnemonic       "INC"
+    :help-text      "INCrement memory"
 
-    :addressing-modes {0xc0 :immediate  ;; size 2  2 cycles
-                       0xc4 :zero-page  ;; size 2  3 cycles
-                       0xcc :absolute   ;; size 3  4 cycles
+    :flags          "S Z"
+
+    :addressing-modes {0xe6 :zero-page    ;; size 2  5 cycles
+                       0xf6 :zero-page-x  ;; size 2  6 cycles
+                       0xee :absolute     ;; size 3  6 cycles
+                       0xfe :absolute-x   ;; size 3  7 cycles
                        }}
-
-  {:opcode :DEC
-   :mnemonic       "DEC"
-   :help-text      "DECrement memory"
-
-   :flags          "S Z"
-
-   :addressing-modes {0xc6 :zero-page    ;; size 2  5 cycles
-                      0xd6 :zero-page-x  ;; size 2  6 cycles
-                      0xce :absolute     ;; size 3  6 cycles
-                      0xde :absolute-x   ;; size 3  7 cycles
-                      }}
 
 {:opcode :EOR
  :mnemonic       "EOR"
@@ -186,19 +169,6 @@
                     0x41 :indirect-x   ;; size 2  6 cycles
                     0x51 :indirect-y   ;; size 2  5+ cycles
                     }}
-
-{:opcode :INC
- :mnemonic       "INC"
- :help-text      "INCrement memory"
-
- :flags          "S Z"
-
- :addressing-modes {0xe6 :zero-page    ;; size 2  5 cycles
-                    0xf6 :zero-page-x  ;; size 2  6 cycles
-                    0xee :absolute     ;; size 3  6 cycles
-                    0xfe :absolute-x   ;; size 3  7 cycles
-                    }}
-
 {:opcode :JMP
  :mnemonic       "JMP"
  :help-text      "JuMP"
@@ -394,14 +364,24 @@
                     0x94 :zero-page-x  ;; size 2  4 cycles
                     0x8c :absolute     ;; size 3  4 cycles
                     }}
+{:opcode :CPY
+ :mnemonic       "CPY"
+ :help-text      "ComPare Y register"
+
+ :flags          "S Z C"
+
+ :addressing-modes {0xc0 :immediate  ;; size 2  2 cycles
+                    0xc4 :zero-page  ;; size 2  3 cycles
+                    0xcc :absolute   ;; size 3  4 cycles
+                    }}
 ] )
 
 
-(defn mk-opcode-entry [opcode addressing-mode addressing-modes]
-  (merge {:addressing-mode (addressing-mode addressing-modes)
-   } (dissoc opocode :addre))
-  
-  )
+(defn- mk-opcode-entry [opcode addressing-mode addressing-modes]
+  (merge 
+    {:addressing-mode (addressing-mode addressing-modes) }
+    (dissoc opocode :addressing-modes)))
+
 ;; Construct Opcode -> opcode table
 (defn- mk-opcode-table
   "Take the opcodes and make a table indexed by opcode hex"
@@ -409,11 +389,10 @@
   (let [addr-modes (map identity (:addressing-modes opcode))
         as-map (map identity addr-modes)
         my-fn ( fn [tab [ hex addr-mode]]
-                    (assoc tab hex {:addressing-mode (addr-mode addressing-modes)
-                                    :opcode (:opcode opcode)
-                                    })) ]
-    (reduce my-fn tab as-map)     )
-  )
+                    (assoc
+                      tab
+                      hex (mk-opcode-entry opcode addressing-mode addressing-modes))) ]
+    (reduce my-fn tab as-map)))
 
 (defn- mk-big-opcode-table [all-opcodes addressing-modes]
   (reduce (fn [t opcode]
