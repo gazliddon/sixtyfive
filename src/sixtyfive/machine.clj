@@ -62,33 +62,6 @@
   (swap-mem [_ func]))
 
 (defrecord Machine [^Cpu cpu mem opcode-table ]
-
-  )
-
-(extend-type Machine
-  M/IMemoryReader
-
-  (read-word [{:keys [mem] } addr]
-    (M/read-word mem addr))
-
-  (read-byte [{:keys [mem] } addr]
-    (M/read-byte mem addr) )
-
-  (read-block [{:keys [mem] } src size]
-    (M/read-block mem src size)  )
-
-  M/IMemoryWriter
-  (write-word [this addr v]
-    (swap-mem this #(M/write-word %1 addr v)))
-
-  (write-byte [this addr v]
-    (swap-mem this #(M/write-byte %1 addr v)))
-
-  (write-block [this dst src]
-    (swap-mem this #(M/write-block %1 dst src)))
-  )
-
-(extend-type Machine
   IMachine
   (get-reg [{:keys [cpu]} reg]
     (CPU/get-reg cpu reg))
@@ -102,7 +75,7 @@
   (get-pc [{:keys [cpu]}]
     (CPU/get-pc cpu))
 
-  (get-opcode [this]
+  (get-opcode [this addr]
     (assert false))
 
   (get-operand-word [this ]
@@ -124,7 +97,28 @@
   (swap-mem [this func]
     (assoc this :mem (func (:mem this))))  
   
+   
+  M/IMemoryReader
+  (read-word [{:keys [mem] } addr]
+    (M/read-word mem addr))
+
+  (read-byte [{:keys [mem] } addr]
+    (M/read-byte mem addr) )
+
+  (read-block [{:keys [mem] } src size]
+    (M/read-block mem src size)  )
+
+  M/IMemoryWriter
+  (write-word [this addr v]
+    (swap-mem this #(M/write-word %1 addr v)))
+
+  (write-byte [this addr v]
+    (swap-mem this #(M/write-byte %1 addr v)))
+
+  (write-block [this dst src]
+    (swap-mem this #(M/write-block %1 dst src)))
   )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defrecord Prg [^long address data])
@@ -133,8 +127,6 @@
   (-> mac
       (swap-mem #(M/write-block %1 address data))
       (swap-cpu #(CPU/set-pc %1 address))))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 6502 addressing modes
@@ -237,7 +229,6 @@
 (defn fetch-byte [^Machine m addr-mode]
   (let [addr (calculate-address addr-mode m)]
     (M/read-byte m addr)))
-
 
 
 (defn fetch [^Machine machine addr-mode]
