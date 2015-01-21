@@ -10,6 +10,7 @@
   (:import [sixtyfive.memory ByteMemory]
            [sixtyfive.cpu Cpu]))
 
+
 (set! *warn-on-reflection* true)
 
 (defprotocol IMachine
@@ -97,7 +98,12 @@
     (CPU/get-pc cpu))
 
   (get-opcode [this addr]
-    (assert false))
+    (let [hex (M/read-byte this addr)
+          opcode (nth hex opcode-table)
+          addr-mode (:addressing-mode opcode)
+          operand (get-operand addr-mode this addr)]
+      {:opcode opcode
+       :operand operand}))
 
   (get-operand-word [this ]
     (P/read-word this (inc  (get-pc this))))
@@ -118,16 +124,15 @@
   (swap-mem [this func]
     (assoc this :mem (func (:mem this))))  )
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defrecord Prg [^long address data])
 
-(defn load-prg [^Machine mac ^Prg {:keys [address data] :as prg}]
-  (let [mem' (P/write-block (:mem mac) address data)
-        ; cpu' (comment set-pc mac address)
-        ]
-
-    mem'))
+(defn load-prg [^Machine mac ^Prg {:keys [address data]}]
+  (println (class mac))
+  (println (class (:mem mac)))
+  (println "ABOUT TO WRITE BLOCK load-prg")
+  (M/write-block (:mem mac) address data)
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 6502 addressing modes
@@ -295,8 +300,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def op-code-table (OC/make-op-code-tab opcode-factories mode-to-addr-calc-func))
 
-(defn mk-machine []
-  (Machine.
+(defn mk-machine ^Machine []
+  (->Machine
     (CPU/mk-cpu)
     (M/mk-byte-memory 65536)
     op-code-table
@@ -331,16 +336,10 @@
     )
   )
 
-(defn finish [_]
-  "Done"
-  )
-
+(defn finish [_] "Done"
+  
 
 (def mac (mk-machine))
-
-(-> (mk-machine)
-    (load-prg prg)
-    )
 
 (comment -> (mk-machine)
     (load-prg prg)
