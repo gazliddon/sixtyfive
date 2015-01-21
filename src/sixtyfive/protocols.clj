@@ -1,14 +1,19 @@
 (ns sixtyfive.protocols)
 
+(defprotocol IMachine
+  (get-pc [_ ])
+  (set-pc [_ new-pc])
+  (step [_]))
+
 (defprotocol IMemoryReader
-  (read-word  [_ ^long addr])
+  (read-word  [_ addr])
   (read-byte  [_ addr])
-  (read-block [_ ^long src ^long size]))
+  (read-block [_ src size]))
 
 (defprotocol IMemoryWriter
-  (write-block [_ ^long dst src])
-  (write-byte  [_ ^long ^long addr v])
-  (write-word  [_ ^long ^long addr v]))
+  (write-block [_ dst src])
+  (write-byte  [_ addr v])
+  (write-word  [_ addr v]))
 
 (defprotocol IAddrMode
   (get-str [_])
