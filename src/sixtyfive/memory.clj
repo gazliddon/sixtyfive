@@ -21,18 +21,19 @@
 
   IMemoryWriter
   (write-block [{:keys [data] :as m} dst src ]
-    (let [slice-0 (take dst data)
-          slice-1 (drop (+ dst (count src)) data )]
+    (let [dst-int (int dst)
+          slice-0 (take dst-int data)
+          slice-1 (drop (+ dst-int (count src)) data )]
       (assoc m :data (vec (concat (vec slice-0) src (vec slice-1))))))
 
   (write-word [m addr v]
     (let [l (bit-and 0xff v)
           h (bit-and 0xff (/ v 0x100))]
-      (.write-block m addr [l h])))
+      (.write-block m (int addr ) [l h])))
 
   (write-byte [this addr v]
-    (assoc-in this [:data addr] (bit-and 0xff v) )))
+    (assoc-in this [:data (int addr)] (bit-and 0xff v) )))
 
 (defn mk-byte-memory [size]
   (->ByteMemory
-    (vec  (take size (repeat 0)))))
+    (vec  (take (int size) (repeat 0)))))

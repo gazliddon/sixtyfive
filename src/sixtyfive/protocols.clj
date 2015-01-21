@@ -7,8 +7,8 @@
 
 (defprotocol IMemoryReader
   (read-word  [_ addr])
-  (read-byte  [_ addr])
-  (read-block [_ src size]))
+  (read-byte  [_ ^Integer addr])
+  (read-block [_ ^Integer src size]))
 
 (defprotocol IMemoryWriter
   (write-block [_ dst src])

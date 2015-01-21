@@ -1,12 +1,12 @@
 (ns sixtyfive.prg
-  (:require [sixtyfive.protocols :as P]
-            [sixtyfive.machine :as M])
-  )
+  (:require [sixtyfive.protocols :refer :all]))
 
 
-(defrecord Prg [^long address data])
+(defrecord Prg [^Integer address data])
 
-(defn load-prg [^M/Machine mac ^Prg {:keys [address data]}]
-  (.write-block (:mem mac) address data)
-  )
+(defn load-prg [machine ^Prg {:keys [address data]}]
+  (-> machine
+    (write-block address data)
+    (set-pc address)
+    ))
 
