@@ -6,9 +6,9 @@
   (step [_]))
 
 (defprotocol IMemoryReader
-  (read-word  [_ addr])
+  (read-word  [_ ^Integer addr])
   (read-byte  [_ ^Integer addr])
-  (read-block [_ ^Integer src size]))
+  (read-block [_ ^Integer src ^Integer size]))
 
 (defprotocol IMemoryWriter
   (write-block [_ dst src])

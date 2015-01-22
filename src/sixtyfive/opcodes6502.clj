@@ -1,10 +1,12 @@
 (ns sixtyfive.opcodes6502
+  (:require [sixtyfive.protocols])
   )
 
 (def addressing-modes
   {:absolute     {:help-text   ""
                   :disassembly "%1 %2"
-                  :size        3}
+                  :size        3
+                  }
 
    :absolute-x   {:help-text   ""
                   :disassembly "%1 %2,X"
@@ -377,10 +379,19 @@
 ] )
 
 
+(def unknown-opcode
+  {:opcode :UNKNOWN
+   :mnemonic "???"
+   :help-text "Unknown opcode"
+   :flags "none"
+   :addressing-mode (-> (:unknown addressing-modes)
+                        (assoc :addressing-mode :unknown)) })
+
 (defn- mk-opcode-entry [opcode addressing-mode addressing-modes]
   (merge 
-    {:addressing-mode (addressing-mode addressing-modes) }
-    (dissoc opocode :addressing-modes)))
+    {:addressing-mode (-> (addressing-mode addressing-modes)
+                          (assoc :addressing-mode addressing-mode))  }
+    (dissoc opcode :addressing-modes)))
 
 ;; Construct Opcode -> opcode table
 (defn- mk-opcode-table
@@ -388,7 +399,7 @@
   [opcode addressing-modes tab]
   (let [addr-modes (map identity (:addressing-modes opcode))
         as-map (map identity addr-modes)
-        my-fn ( fn [tab [ hex addr-mode]]
+        my-fn ( fn [tab [ hex addressing-mode]]
                     (assoc
                       tab
                       hex (mk-opcode-entry opcode addressing-mode addressing-modes))) ]
@@ -398,20 +409,9 @@
   (reduce (fn [t opcode]
             (mk-opcode-table opcode addressing-modes t) ) {} all-opcodes))
 
-(def opcodes
+(def opcode-table
   (mk-big-opcode-table all-opcodes addressing-modes))
 
-(def unknown-opcode
-  {:addressing-mode (:unknown)
-   :opcode :UNKNOWN})
-
-;; Fetch and decode the instruction
-(defn fetch-instruction [machine cpu addr]
-  (let [ins-byte (.read-byte machine addr)
-        instruction (get opcodes ins-byte unknown-opcode)
-        ])
-  {:opcode 1
-   :operand 1
-   :effective-address 1}
-  )
+(defn get-opcode [opcode-hex] 
+  (get opcode-table opcode-hex unknown-opcode))
 
