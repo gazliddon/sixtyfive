@@ -1,5 +1,5 @@
 (ns sixtyfive.opcodes6502
-  (:require [sixtyfive.protocols])
+  (:require [sixtyfive.protocols :refer :all])
   )
 
 (def addressing-modes
@@ -19,6 +19,19 @@
    :immediate    {:help-text   ""
                   :disassembly "%1 #%2"
                   :size        2}
+
+   :acccumalator {:help-text ""
+                  :disassembly "%1"
+                  :size 1}
+
+   
+   :x-register   {:help-text ""
+                  :disassembly "%1"
+                  :size 1}
+
+   :y-register   {:help-text ""
+                  :disassembly "%1"
+                  :size 1 }
 
    :implied      {:help-text   ""
                   :disassembly "%1"
@@ -50,9 +63,10 @@
              }
    })
 
+
 (def all-opcodes
   [
-   {:opcode :ADCa
+   {:opcode :ADC
     :mnemonic       "ADC"
     :help-text      "ADd with Carry"
 
@@ -155,6 +169,40 @@
                        0xee :absolute     ;; size 3  6 cycles
                        0xfe :absolute-x   ;; size 3  7 cycles
                        }}
+   {:opcode :INX
+    :mnemonic       "INX"
+    :help-text      "INCrement X register"
+
+    :flags          "S Z"
+
+    :addressing-modes {0xe8 :x-register   ;; size 1  2 cycles
+                       }}
+   {:opcode :DEX
+    :mnemonic       "DEX"
+    :help-text      "DEcrement X register"
+
+    :flags          "S Z"
+
+    :addressing-modes {0xca :x-register   ;; size 1  2 cycles
+                       }}
+
+{:opcode :INY
+ :mnemonic       "INY"
+ :help-text      "INCrement Y register"
+
+ :flags          "S Z"
+
+ :addressing-modes {0xc8 :y-register   ;; size 1  2 cycles
+                    }}
+
+{:opcode :DEY
+ :mnemonic       "DEY"
+ :help-text      "DEcrement Y register"
+
+ :flags          "S Z"
+
+ :addressing-modes {0x88 :y-register   ;; size 1  2 cycles
+                    }}
 
 {:opcode :EOR
  :mnemonic       "EOR"
@@ -378,6 +426,87 @@
                     }}
 ] )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Helper utils for implementation of addressing modes
+(defn- next-ins [addr-mode addr]
+  (->> (addr-mode addressing-modes)
+       (:size)
+       (+ addr)))
+
+(defn- ret-with-val [m addr-mode addr]
+  {:addr addr
+   :val (read-byte m addr)
+   :next-instruction (next-ins addr-mode addr) })
+
+(defn- byte-operand [m addr]
+  (read-byte m (inc addr)))
+
+(defn- word-operand [m addr]
+  (read-word m (inc addr)))
+
+(defn- ret-with-reg-val [m addr addr-mode reg]
+  {:val              (-> m :cpu reg)
+   :next-instruction (next-ins addr-mode addr)}  )
+
+(def addr-mode-implementations
+  {:unknown      (fn  [_ ^Integer addr]
+                   {:next-instruction (next-ins :unknown addr)})
+   
+   :accumulator  (fn [m ^Integer addr]
+                   (ret-with-reg-val m addr :accumulator :A))
+
+   :x-register   (fn [m ^Integer addr]
+                   (ret-with-reg-val m addr :x-register :X)) 
+
+   :y-register   (fn [m ^Integer addr]
+                   (ret-with-reg-val m addr :y-register :Y))
+
+   :implied      (fn [m addr]
+                   { :next-instruction (next-ins :implied addr)})
+   
+   :absolute     (fn  [m ^Integer addr]
+                   (->> (word-operand m addr)
+                        (ret-with-val :absolute m)))
+
+   :absolute-y   (fn [m ^Integer addr]
+                   (->> (word-operand m addr)
+                        (+ (-> m :cpu :Y))
+                        (ret-with-val :absolute-y m))) 
+
+   :absolute-x   (fn [m ^Integer addr]
+                  (->> (word-operand m addr) 
+                       (+ (-> m :cpu :X))
+                       (ret-with-val :absolute-x m)))
+
+   :immediate    (fn  [m ^Integer addr]
+                   (->> (inc addr)
+                        (ret-with-val :immediate m)))
+
+   :indirect     (fn [m ^Integer addr]
+                   (->> (word-operand m addr)
+                        (read-word m)
+                        (ret-with-val :indirect m)))
+
+   :indirect-x   (fn [m ^Integer addr]
+                   (->> (byte-operand m addr)
+                        (+ (-> m :cpu :X))
+                        (read-word m) 
+                        (ret-with-val :indirect-x m)))
+
+   :indirect-y   (fn [m ^Integer addr]
+                   (->> (byte-operand m addr)
+                        (read-word m) 
+                        (+ (-> m :cpu :Y))
+                        (ret-with-val :indirect-y m)))
+
+   :zero-page    (fn [m ^Integer addr]
+                   (->> (byte-operand m addr)
+                        (ret-with-val :zero-page m)))
+
+   :zero-page-x  (fn [m ^Integer addr]
+                   (->> (byte-operand m addr)
+                        (+ (-> :cpu :X))
+                        (ret-with-val :zero-page-x m)))})
 
 (def unknown-opcode
   {:opcode :UNKNOWN
