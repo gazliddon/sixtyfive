@@ -448,6 +448,9 @@
   {:val              (-> m :cpu reg)
    :next-instruction (next-ins addr-mode addr)}  )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Addressing mode implementations
+
 (def addr-mode-implementations
   {:unknown      (fn  [_ ^Integer addr]
                    {:next-instruction (next-ins :unknown addr)})
