@@ -14,7 +14,7 @@ clean:
 
 $(BUILD)/%.bin : %.65
 	@echo Assembling $< to $@
-	@$(AS) $< -o$@
+	@$(AS) $< -v1 -o$@
 
 $(BUILD):
 	mkdir -p $(BUILD)
