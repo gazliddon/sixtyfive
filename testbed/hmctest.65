@@ -1,4 +1,7 @@
-	.ORG $4000
+    PROCESSOR 6502
+    SEG code
+	ORG $4000
+
 start:
 ; EXPECTED FINAL RESULTS: $0210 = FF
 ; (any other number will be the 
