@@ -1,10 +1,16 @@
 (ns sixtyfive.utils
   (:require [clojure.reflect :refer :all]
-            [clojure.pprint :refer :all]))
+            [clojure.pprint  :refer :all]))
 
 (defn refl [a] (->> (reflect a)
                     (pprint)))
 
+(defn mk-vec
+  "make a vector of size filled with item"
+  [size item]
+  (->> (repeat item)
+       (take 256)
+       (vec)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; haskell style flip

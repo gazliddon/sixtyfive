@@ -1,6 +1,9 @@
 (ns sixtyfive.opcodes6502
-  (:require [sixtyfive.protocols :refer :all])
-  )
+  (:require [sixtyfive.protocols :refer :all]
+            [sixtyfive.utils     :refer [mk-vec]]
+            ))
+
+
 
 (def addressing-modes
   {:absolute     {:help-text   ""
@@ -58,14 +61,13 @@
                   :size        2}
 
    :unknown {:help-text ""
-             :disassembly "%1 (UNKNOWN"
-             :size 1
-             }
+             :disassembly "%1 (UNKNOWN)"
+             :size 1 }
    })
 
 
 (def all-opcodes
-  [
+ [
    {:opcode :ADC
     :mnemonic       "ADC"
     :help-text      "ADd with Carry"
@@ -424,13 +426,145 @@
                     0xc4 :zero-page  ;; size 2  3 cycles
                     0xcc :absolute   ;; size 3  4 cycles
                     }}
+
+
 ] )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def opcode-implementations
+  {:UNKNOWN (fn [m opcode-record]
+              (assert false)
+              m)
+
+   :ADC (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :AND (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :ASL (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :BIT (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :BRK (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :CMP (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :CPX (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :INC (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :INX (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :DEX (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :INY (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :DEY (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :EOR (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :JMP (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :JSR (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :LDA (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :LDX (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :LDY (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :LSR (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :NOP (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :ORA (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :ROL (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :ROR (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :RTI (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :RTS (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :SBC (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :STA (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :STX (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :STY (fn [m opcode-record]
+          (assert false)
+          m)
+
+   :CPY (fn [m opcode-record]
+          (assert false)
+          m)
+   })
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper utils for implementation of addressing modes
 (defn- next-ins [addr-mode addr]
   (->> (addr-mode addressing-modes)
-       (:size)
+       (:size)  (fn [m opcode-ret]
+                  m)
        (+ addr)))
 
 (defn- ret-with-val [m addr-mode addr]
@@ -452,7 +586,7 @@
 ;; Addressing mode implementations
 
 (def addr-mode-implementations
-  {:unknown      (fn  [_ ^Integer addr]
+  {:unknown      (fn [_ ^Integer addr]
                    {:next-instruction (next-ins :unknown addr)})
    
    :accumulator  (fn [m ^Integer addr]
@@ -467,7 +601,7 @@
    :implied      (fn [m addr]
                    { :next-instruction (next-ins :implied addr)})
    
-   :absolute     (fn  [m ^Integer addr]
+   :absolute     (fn [m ^Integer addr]
                    (->> (word-operand m addr)
                         (ret-with-val :absolute m)))
 
@@ -481,7 +615,7 @@
                        (+ (-> m :cpu :X))
                        (ret-with-val :absolute-x m)))
 
-   :immediate    (fn  [m ^Integer addr]
+   :immediate    (fn [m ^Integer addr]
                    (->> (inc addr)
                         (ret-with-val :immediate m)))
 
@@ -511,35 +645,46 @@
                         (+ (-> :cpu :X))
                         (ret-with-val :zero-page-x m)))})
 
-(def unknown-opcode
+(def unknown-opcode 
   {:opcode :UNKNOWN
-   :mnemonic "???"
-   :help-text "Unknown opcode"
-   :flags "none"
-   :addressing-mode (-> (:unknown addressing-modes)
-                        (assoc :addressing-mode :unknown)) })
+   :mnemonic       "???"
+   :help-text      "UKNONWN opocde"
+   :flags          "none" })
+
+
+(defn- mk-opcode-func [addr-mode-id opocde-id]
+  (let [addr-mode-func (addr-mode-id addr-mode-implementations)
+        opcode-func (opocde-id opcode-implementations) ]
+    (fn [m]
+      (->> (-> :cpu :PC)
+           (addr-mode-func m)
+           (opcode-func m)))))
 
 (defn- mk-opcode-entry [opcode addressing-mode addressing-modes]
   (merge 
-    {:addressing-mode (-> (addressing-mode addressing-modes)
-                          (assoc :addressing-mode addressing-mode))  }
+    {:addressing-mode addressing-mode
+     :func (mk-opcode-func addressing-mode (:opcode opcode) )}
     (dissoc opcode :addressing-modes)))
 
 ;; Construct Opcode -> opcode table
 (defn- mk-opcode-table
   "Take the opcodes and make a table indexed by opcode hex"
-  [opcode addressing-modes tab]
+ [opcode addressing-modes tab]
   (let [addr-modes (map identity (:addressing-modes opcode))
         as-map (map identity addr-modes)
-        my-fn ( fn [tab [ hex addressing-mode]]
+        my-fn ( fn [tab [hex addressing-mode]]
                     (assoc
                       tab
                       hex (mk-opcode-entry opcode addressing-mode addressing-modes))) ]
     (reduce my-fn tab as-map)))
 
+
 (defn- mk-big-opcode-table [all-opcodes addressing-modes]
-  (reduce (fn [t opcode]
-            (mk-opcode-table opcode addressing-modes t) ) {} all-opcodes))
+  (let [default-tab  (->> (mk-opcode-entry unknown-opcode :unknown addressing-modes)
+                          (mk-vec 256)
+                          )]
+    (reduce (fn [t opcode]
+              (mk-opcode-table opcode addressing-modes t) ) defualt-tab all-opcodes)))
 
 (def opcode-table
   (mk-big-opcode-table all-opcodes addressing-modes))

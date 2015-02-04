@@ -76,5 +76,17 @@
     (decode-instruction->pc)
     )
 
+(defn test-it []
+  (let [m (-> (mk-machine)
+              (PRG/load-prg prg))
+        ins (decode-instruction->pc m)
+        fetcher (:operand-fetcher ins)
+        ]
+    fetcher
+  ) 
+  )
+
+(test-it)
+
 
 
