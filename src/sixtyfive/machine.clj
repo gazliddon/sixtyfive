@@ -43,7 +43,7 @@
     (mk-cpu)
     (mk-byte-memory 65536)))
 
-(def prg (PRG/make-prg-from-file "testbed/build/hmctest.bin")
+(def prg (PRG/make-prg-from-file "testbed/build/hmctest.bin"))
 
 (defn opocode->operand-fetcher [opcode]
   (let [size 2]

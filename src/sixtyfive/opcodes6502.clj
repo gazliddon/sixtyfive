@@ -27,7 +27,7 @@
                   :disassembly "%1"
                   :size 1}
 
-   
+
    :x-register   {:help-text ""
                   :disassembly "%1"
                   :size 1}
@@ -60,14 +60,67 @@
                   :disassembly "%1 %2,X"
                   :size        2}
 
-   :unknown {:help-text ""
-             :disassembly "%1 (UNKNOWN)"
-             :size 1 }
+   :unknown      {:help-text ""
+                  :disassembly "%1 (UNKNOWN)"
+                  :size 1 }
+
+   :branch       {:help-text ""
+                  :disassembly "%1 %2"
+                  :size 2 }
    })
 
 
 (def all-opcodes
- [
+  [
+   {:opcode :BPL
+    :mnemonic  "BPL"
+    :help-text "Branch if xxxx"
+    :flags     "none"
+    :addressing-modes {0x10 :branch}}
+
+   {:opcode :BMI
+    :mnemonic  "BMI"
+    :help-text "Branch if xxxx"
+    :flags     "none"
+    :addressing-modes {0x30 :branch}}
+
+   {:opcode :BNE
+    :mnemonic  "BNE"
+    :help-text "Branch if xxxx"
+    :flags     "none"
+    :addressing-modes {0xd0 :branch}}
+
+   {:opcode :BEQ
+    :mnemonic  "BEQ"
+    :help-text "Branch if xxxx"
+    :flags     "none"
+    :addressing-modes {0xf0 :branch}}
+
+   {:opcode :BCC
+    :mnemonic  "BCC"
+    :help-text "Branch if xxxx"
+    :flags     "none"
+    :addressing-modes {0x90 :branch}}
+
+   {:opcode :BCS
+    :mnemonic  "BCS"
+    :help-text "Branch if xxxx"
+    :flags     "none"
+    :addressing-modes {0xb0 :branch}}
+
+   {:opcode :BVC
+    :mnemonic  "BVC"
+    :help-text "Branch if xxxx"
+    :flags     "none"
+    :addressing-modes {0x50 :branch}}
+
+   {:opcode :BVS
+    :mnemonic  "BVS"
+    :help-text "Branch if xxxx"
+    :flags     "none"
+    :addressing-modes {0x70 :branch}}
+
+
    {:opcode :ADC
     :mnemonic       "ADC"
     :help-text      "ADd with Carry"
@@ -171,22 +224,22 @@
                        0xee :absolute     ;; size 3  6 cycles
                        0xfe :absolute-x   ;; size 3  7 cycles
                        }}
-   {:opcode :INX
-    :mnemonic       "INX"
-    :help-text      "INCrement X register"
+{:opcode :INX
+ :mnemonic       "INX"
+ :help-text      "INCrement X register"
 
-    :flags          "S Z"
+ :flags          "S Z"
 
-    :addressing-modes {0xe8 :x-register   ;; size 1  2 cycles
-                       }}
-   {:opcode :DEX
-    :mnemonic       "DEX"
-    :help-text      "DEcrement X register"
+ :addressing-modes {0xe8 :x-register   ;; size 1  2 cycles
+                    }}
+{:opcode :DEX
+ :mnemonic       "DEX"
+ :help-text      "DEcrement X register"
 
-    :flags          "S Z"
+ :flags          "S Z"
 
-    :addressing-modes {0xca :x-register   ;; size 1  2 cycles
-                       }}
+ :addressing-modes {0xca :x-register   ;; size 1  2 cycles
+                    }}
 
 {:opcode :INY
  :mnemonic       "INY"
@@ -537,26 +590,57 @@
           (assert false)
           m)
 
-   :SBC (fn [m opcode-record]
+    :SBC (fn [m opcode-record]
           (assert false)
           m)
 
-   :STA (fn [m opcode-record]
+    :STA (fn [m opcode-record]
           (assert false)
           m)
 
-   :STX (fn [m opcode-record]
+    :STX (fn [m opcode-record]
           (assert false)
           m)
 
-   :STY (fn [m opcode-record]
+    :STY (fn [m opcode-record]
           (assert false)
           m)
 
-   :CPY (fn [m opcode-record]
+    :CPY (fn [m opcode-record]
           (assert false)
           m)
-   })
+
+    :BPL (fn [ m opcode-record ]
+          (assert false)
+          m)
+
+    :BMI (fn [ m opcode-record ]
+          (assert false)
+          m)
+
+    :BNE (fn [ m opcode-record ]
+          (assert false)
+          m)
+
+    :BEQ (fn [ m opcode-record ]
+          (assert false)
+          m)
+
+    :BCC (fn [ m opcode-record ]
+          (assert false)
+          m)
+
+    :BCS (fn [ m opcode-record ]
+          (assert false)
+          m)
+
+    :BVC (fn [ m opcode-record ]
+          (assert false)
+          m)
+
+    :BVS (fn [ m opcode-record ]
+          (assert false)
+          m) })
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -643,7 +727,12 @@
    :zero-page-x  (fn [m ^Integer addr]
                    (->> (byte-operand m addr)
                         (+ (-> :cpu :X))
-                        (ret-with-val :zero-page-x m)))})
+                        (ret-with-val :zero-page-x m)))
+
+  :branch        (fn [m ^Integer addr]
+                   (->> (inc addr)
+                        (ret-with-val :immediate m)))}
+  )
 
 (def unknown-opcode 
   {:opcode :UNKNOWN
