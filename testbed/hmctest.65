@@ -923,5 +923,9 @@ suiteafinal:
 	CMP $0210
 	BNE theend
 	INC $0210
+
 theend:
 	JMP theend
+
+errored:
+
