@@ -9,6 +9,7 @@
 ;; File helpy rubbish
 ;; TODO Should be in seperate class and
 ;;      Should be clj / cljs agnostic
+
 (defn- file-length [^String file-name]
   (let [f (file file-name)]
     (.length f)))
@@ -32,7 +33,6 @@
   (-> machine
     (write-block address data)
     (set-pc address)))
-
 
 (defn make-prg-from-file ^Prg [^String file-name]
   (let [as-vec (load-bin-as-vec  file-name)
