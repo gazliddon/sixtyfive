@@ -38,18 +38,12 @@
     (:PC cpu)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defn mk-machine ^Machine []
   (->Machine
     (mk-cpu)
     (mk-byte-memory 65536)))
 
-(def prg
-  (PRG/->Prg
-    0x200
-    [0xa9 0x00
-     0x4c 0x00 0x02]))
-
+(def prg (PRG/make-prg-from-file "testbed/build/hmctest.bin")
 
 (defn opocode->operand-fetcher [opcode]
   (let [size 2]
@@ -76,17 +70,9 @@
     (decode-instruction->pc)
     )
 
-(defn test-it []
-  (let [m (-> (mk-machine)
-              (PRG/load-prg prg))
-        ins (decode-instruction->pc m)
-        fetcher (:operand-fetcher ins)
-        ]
-    fetcher
-  ) 
-  )
 
-(test-it)
+
+
 
 
 

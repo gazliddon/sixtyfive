@@ -684,7 +684,7 @@
                           (mk-vec 256)
                           )]
     (reduce (fn [t opcode]
-              (mk-opcode-table opcode addressing-modes t) ) defualt-tab all-opcodes)))
+              (mk-opcode-table opcode addressing-modes t) ) default-tab all-opcodes)))
 
 (def opcode-table
   (mk-big-opcode-table all-opcodes addressing-modes))
