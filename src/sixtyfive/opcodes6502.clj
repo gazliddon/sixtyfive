@@ -1,7 +1,18 @@
 (ns sixtyfive.opcodes6502
   (:require [sixtyfive.protocols :refer :all]
             [sixtyfive.utils     :refer [mk-vec]]
+            [sixtyfive.cpu       :refer [get-v
+                                         get-c
+                                         get-n
+                                         get-z
+
+                                         set-v
+                                         set-c
+                                         set-n
+                                         set-z 
+                                         ]]
             ))
+
 
 
 
@@ -789,4 +800,6 @@
 
 (defn get-opcode [opcode-hex] 
   (get opcode-table opcode-hex unknown-opcode))
+
+
 
