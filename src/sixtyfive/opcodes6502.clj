@@ -552,8 +552,7 @@
           m)
 
    :JMP (fn [m opcode-record]
-          (assert false)
-          m)
+          (set-pc m (:operand opcode-record)))
 
    :JSR (fn [m opcode-record]
           (assert false)
@@ -599,11 +598,11 @@
           (assert false)
           m)
 
-    :SBC (fn [m opcode-record]
+   :SBC (fn [m opcode-record]
           (assert false)
           m)
 
-    :STA (fn [m opcode-record]
+   :STA (fn [m opcode-record]
           (assert false)
           m)
 
