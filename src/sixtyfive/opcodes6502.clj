@@ -730,8 +730,11 @@
                         (ret-with-val :zero-page-x m)))
 
   :branch        (fn [m ^Integer addr]
-                   (->> (inc addr)
-                        (ret-with-val :immediate m)))}
+                   (let [bval (byte-operand m addr)
+                         delta (if (> bval 127)
+                                 (- 0 (- bval 127))
+                                 bval)]
+                    (ret-with-val m :branch (+ addr delta)) ))}
   )
 
 (def unknown-opcode 

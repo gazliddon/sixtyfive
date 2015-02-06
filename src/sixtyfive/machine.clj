@@ -67,12 +67,6 @@
 
 (-> (mk-machine)
     (PRG/load-prg prg)
-    (decode-instruction->pc)
-    )
-
-
-
-
-
+    (decode-instruction->pc))
 
 

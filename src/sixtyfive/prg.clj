@@ -14,7 +14,7 @@
   (let [f (file file-name)]
     (.length f)))
 
-(defn load-bin- [^String file-name]
+(defn- load-bin [^String file-name]
   (with-open [in (input-stream (file file-name))]
     (let [buf (byte-array (file-length file-name))
           _ (.read in buf) ]
