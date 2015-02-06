@@ -483,6 +483,15 @@
 
 ] )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Generic opcode helper functions
+(defn- branch-if [m func yes no]
+  (if (func)
+    (set-pc m yes)
+    (set-pc m no)))
+
+(defn- branch-if-not [m func yes no]
+  (branch-if m #(not (func)) yes no))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def opcode-implementations
@@ -619,28 +628,23 @@
           m)
 
     :BNE (fn [ m opcode-record ]
-          (assert false)
-          m)
+           (branch-if-not m #(get-n (:cpu m))))
 
     :BEQ (fn [ m opcode-record ]
-          (assert false)
-          m)
+           (branch-if m #(get-n (:cpu m))))
 
     :BCC (fn [ m opcode-record ]
-          (assert false)
-          m)
+           (branch-if-not m #(get-c (:cpu m))))
 
     :BCS (fn [ m opcode-record ]
-          (assert false)
-          m)
+           (branch-if m #(get-c (:cpu m))))
 
     :BVC (fn [ m opcode-record ]
-          (assert false)
-          m)
+           (branch-if-not m #(get-v (:cpu m))))
 
     :BVS (fn [ m opcode-record ]
-          (assert false)
-          m) })
+           (branch-if m #(get-v (:cpu m))))
+})
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -728,6 +732,9 @@
                    (->> (byte-operand m addr)
                         (+ (-> :cpu :X))
                         (ret-with-val :zero-page-x m)))
+
+   ;; TODO Need to make sure address is a short
+   ;;      probably best to do in ret-with-val
 
   :branch        (fn [m ^Integer addr]
                    (let [bval (byte-operand m addr)
