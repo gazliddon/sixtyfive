@@ -5,16 +5,11 @@
                                          get-c
                                          get-n
                                          get-z
-
                                          set-v
                                          set-c
                                          set-n
-                                         set-z 
-                                         ]]
+                                         set-z]]
             ))
-
-
-
 
 (def addressing-modes
   {:absolute     {:help-text   ""
@@ -82,8 +77,7 @@
 
 
 (def all-opcodes
-  [
-   {:opcode :BPL
+  [{:opcode :BPL
     :mnemonic  "BPL"
     :help-text "Branch if xxxx"
     :flags     "none"
@@ -235,264 +229,264 @@
                        0xee :absolute     ;; size 3  6 cycles
                        0xfe :absolute-x   ;; size 3  7 cycles
                        }}
-{:opcode :INX
- :mnemonic       "INX"
- :help-text      "INCrement X register"
+   {:opcode :INX
+    :mnemonic       "INX"
+    :help-text      "INCrement X register"
 
- :flags          "S Z"
+    :flags          "S Z"
 
- :addressing-modes {0xe8 :x-register   ;; size 1  2 cycles
-                    }}
-{:opcode :DEX
- :mnemonic       "DEX"
- :help-text      "DEcrement X register"
+    :addressing-modes {0xe8 :x-register   ;; size 1  2 cycles
+                       }}
+   {:opcode :DEX
+    :mnemonic       "DEX"
+    :help-text      "DEcrement X register"
 
- :flags          "S Z"
-
- :addressing-modes {0xca :x-register   ;; size 1  2 cycles
-                    }}
+    :flags          "S Z"
+
+    :addressing-modes {0xca :x-register   ;; size 1  2 cycles
+                       }}
 
-{:opcode :INY
- :mnemonic       "INY"
- :help-text      "INCrement Y register"
+   {:opcode :INY
+    :mnemonic       "INY"
+    :help-text      "INCrement Y register"
 
- :flags          "S Z"
-
- :addressing-modes {0xc8 :y-register   ;; size 1  2 cycles
-                    }}
-
-{:opcode :DEY
- :mnemonic       "DEY"
- :help-text      "DEcrement Y register"
-
- :flags          "S Z"
+    :flags          "S Z"
+
+    :addressing-modes {0xc8 :y-register   ;; size 1  2 cycles
+                       }}
+
+   {:opcode :DEY
+    :mnemonic       "DEY"
+    :help-text      "DEcrement Y register"
+
+    :flags          "S Z"
 
- :addressing-modes {0x88 :y-register   ;; size 1  2 cycles
-                    }}
+    :addressing-modes {0x88 :y-register   ;; size 1  2 cycles
+                       }}
 
-{:opcode :EOR
- :mnemonic       "EOR"
- :help-text      "bitwise Exclusive OR"
+   {:opcode :EOR
+    :mnemonic       "EOR"
+    :help-text      "bitwise Exclusive OR"
 
- :flags          "S Z"
+    :flags          "S Z"
 
- :addressing-modes {0x49 :immediate    ;; size 2  2 cycles
-                    0x45 :zero-page    ;; size 2  3 cycles
-                    0x55 :zero-page-x  ;; size 2  4 cycles
-                    0x4d :absolute     ;; size 3  4 cycles
-                    0x5d :absolute-x   ;; size 3  4+ cycles
-                    0x59 :absolute-y   ;; size 3  4+ cycles
-                    0x41 :indirect-x   ;; size 2  6 cycles
-                    0x51 :indirect-y   ;; size 2  5+ cycles
-                    }}
-{:opcode :JMP
- :mnemonic       "JMP"
- :help-text      "JuMP"
-
- :flags          "none"
+    :addressing-modes {0x49 :immediate    ;; size 2  2 cycles
+                       0x45 :zero-page    ;; size 2  3 cycles
+                       0x55 :zero-page-x  ;; size 2  4 cycles
+                       0x4d :absolute     ;; size 3  4 cycles
+                       0x5d :absolute-x   ;; size 3  4+ cycles
+                       0x59 :absolute-y   ;; size 3  4+ cycles
+                       0x41 :indirect-x   ;; size 2  6 cycles
+                       0x51 :indirect-y   ;; size 2  5+ cycles
+                       }}
+   {:opcode :JMP
+    :mnemonic       "JMP"
+    :help-text      "JuMP"
+
+    :flags          "none"
 
- :addressing-modes {0x4c :absolute  ;; size 3  3 cycles
-                    0x6c :indirect  ;; size 3  5 cycles
-                    }}
-
-{:opcode :JSR
- :mnemonic       "JSR"
- :help-text      "Jump to SubRoutine"
-
- :flags          "none"
-
- :addressing-modes {0x20 :absolute  ;; size 3  6 cycles
-                    }} 
+    :addressing-modes {0x4c :absolute  ;; size 3  3 cycles
+                       0x6c :indirect  ;; size 3  5 cycles
+                       }}
+
+   {:opcode :JSR
+    :mnemonic       "JSR"
+    :help-text      "Jump to SubRoutine"
+
+    :flags          "none"
+
+    :addressing-modes {0x20 :absolute  ;; size 3  6 cycles
+                       }} 
 
-{:opcode :LDA
- :mnemonic       "LDA"
- :help-text      "LoaD Accumulator"
-
- :flags          "S Z"
-
- :addressing-modes {0xa9 :immediate    ;; size 2  2 cycles
-                    0xa5 :zero-page    ;; size 2  3 cycles
-                    0xb5 :zero-page-x  ;; size 2  4 cycles
-                    0xad :absolute     ;; size 3  4 cycles
-                    0xbd :absolute-x   ;; size 3  4+ cycles
-                    0xb9 :absolute-y   ;; size 3  4+ cycles
-                    0xa1 :indirect-x   ;; size 2  6 cycles
-                    0xb1 :indirect-y   ;; size 2  5+ cycles
-                    }}
+   {:opcode :LDA
+    :mnemonic       "LDA"
+    :help-text      "LoaD Accumulator"
+
+    :flags          "S Z"
+
+    :addressing-modes {0xa9 :immediate    ;; size 2  2 cycles
+                       0xa5 :zero-page    ;; size 2  3 cycles
+                       0xb5 :zero-page-x  ;; size 2  4 cycles
+                       0xad :absolute     ;; size 3  4 cycles
+                       0xbd :absolute-x   ;; size 3  4+ cycles
+                       0xb9 :absolute-y   ;; size 3  4+ cycles
+                       0xa1 :indirect-x   ;; size 2  6 cycles
+                       0xb1 :indirect-y   ;; size 2  5+ cycles
+                       }}
 
-{:opcode :LDX
- :mnemonic       "LDX"
- :help-text      "LoaD X register"
+   {:opcode :LDX
+    :mnemonic       "LDX"
+    :help-text      "LoaD X register"
 
- :flags          "S Z"
+    :flags          "S Z"
 
- :addressing-modes {0xa2 :immediate    ;; size 2  2 cycles
-                    0xa6 :zero-page    ;; size 2  3 cycles
-                    0xb6 :zero-page-y  ;; size 2  4 cycles
-                    0xae :absolute     ;; size 3  4 cycles
-                    0xbe :absolute-y   ;; size 3  4+ cycles
-                    }}
+    :addressing-modes {0xa2 :immediate    ;; size 2  2 cycles
+                       0xa6 :zero-page    ;; size 2  3 cycles
+                       0xb6 :zero-page-y  ;; size 2  4 cycles
+                       0xae :absolute     ;; size 3  4 cycles
+                       0xbe :absolute-y   ;; size 3  4+ cycles
+                       }}
 
-{:opcode :LDY
- :mnemonic       "LDY"
- :help-text      "LoaD Y register"
+   {:opcode :LDY
+    :mnemonic       "LDY"
+    :help-text      "LoaD Y register"
 
- :flags          "S Z"
+    :flags          "S Z"
 
- :addressing-modes {0xa0 :immediate    ;; size 2  2 cycles
-                    0xa4 :zero-page    ;; size 2  3 cycles
-                    0xb4 :zero-page-x  ;; size 2  4 cycles
-                    0xac :absolute     ;; size 3  4 cycles
-                    0xbc :absolute-x   ;; size 3  4+ cycles
-                    }}
-
-{:opcode :LSR
- :mnemonic       "LSR"
- :help-text      "Logical Shift Right"
-
- :flags          "S Z C"
+    :addressing-modes {0xa0 :immediate    ;; size 2  2 cycles
+                       0xa4 :zero-page    ;; size 2  3 cycles
+                       0xb4 :zero-page-x  ;; size 2  4 cycles
+                       0xac :absolute     ;; size 3  4 cycles
+                       0xbc :absolute-x   ;; size 3  4+ cycles
+                       }}
+
+   {:opcode :LSR
+    :mnemonic       "LSR"
+    :help-text      "Logical Shift Right"
+
+    :flags          "S Z C"
 
- :addressing-modes {0x4a :accumulator  ;; size 1  2 cycles
-                    0x46 :zero-page    ;; size 2  5 cycles
-                    0x56 :zero-page-x  ;; size 2  6 cycles
-                    0x4e :absolute     ;; size 3  6 cycles
-                    0x5e :absolute-x   ;; size 3  7 cycles
-                    }}
-
-{:opcode :NOP
- :mnemonic       "NOP"
- :help-text      "No OPeration"
-
- :flags          "none"
-
- :addressing-modes {0xea :implied  ;; size 1  2 cycles
-                    }} 
-
-{:opcode :ORA
- :mnemonic       "ORA"
- :help-text      "bitwise OR with Accumulator"
-
- :flags          "S Z"
-
- :addressing-modes {0x09 :immediate    ;; size 2  2 cycles
-                    0x05 :zero-page    ;; size 2  3 cycles
-                    0x15 :zero-page-x  ;; size 2  4 cycles
-                    0x0d :absolute     ;; size 3  4 cycles
-                    0x1d :absolute-x   ;; size 3  4+ cycles
-                    0x19 :absolute-y   ;; size 3  4+ cycles
-                    0x01 :indirect-x   ;; size 2  6 cycles
-                    0x11 :indirect-y   ;; size 2  5+ cycles
-                    }}
-
-{:opcode :ROL
- :mnemonic       "ROL"
- :help-text      "ROtate Left"
-
- :flags          "S Z C"
-
- :addressing-modes {0x2a :accumulator  ;; size 1  2 cycles
-                    0x26 :zero-page    ;; size 2  5 cycles
-                    0x36 :zero-page-x  ;; size 2  6 cycles
-                    0x2e :absolute     ;; size 3  6 cycles
-                    0x3e :absolute-x   ;; size 3  7 cycles
-                    }}
-
-{:opcode :ROR
- :mnemonic       "ROR"
- :help-text      "ROtate Right"
-
- :flags          "S Z C"
-
- :addressing-modes {0x6a :accumulator  ;; size 1  2 cycles
-                    0x66 :zero-page    ;; size 2  5 cycles
-                    0x76 :zero-page-x  ;; size 2  6 cycles
-                    0x6e :absolute     ;; size 3  6 cycles
-                    0x7e :absolute-x   ;; size 3  7 cycles
-                    }}
-
-{:opcode :RTI
- :mnemonic       "RTI"
- :help-text      "ReTurn from Interrupt"
-
- :flags          "all"
-
- :addressing-modes {0x40 :implied  ;; size 1  6 cycles
-                    }} 
-
-{:opcode :RTS
- :mnemonic       "RTS"
- :help-text      "ReTurn from Subroutine"
-
- :flags          "none"
-
- :addressing-modes {0x60 :implied  ;; size 1  6 cycles
-                    }}
-
-{:opcode :SBC
- :mnemonic       "SBC"
- :help-text      "SuBtract with Carry"
-
- :flags          "S V Z C"
-
- :addressing-modes {0xe9 :immediate    ;; size 2  2 cycles
-                    0xe5 :zero-page    ;; size 2  3 cycles
-                    0xf5 :zero-page-x  ;; size 2  4 cycles
-                    0xed :absolute     ;; size 3  4 cycles
-                    0xfd :absolute-x   ;; size 3  4+ cycles
-                    0xf9 :absolute-y   ;; size 3  4+ cycles
-                    0xe1 :indirect-x   ;; size 2  6 cycles
-                    0xf1 :indirect-y   ;; size 2  5+ cycles
-                    }}
-
-{:opcode :STA
- :mnemonic       "STA"
- :help-text      "STore Accumulator"
-
- :flags          "none"
-
- :addressing-modes {0x85 :zero-page    ;; size 2  3 cycles
-                    0x95 :zero-page-x  ;; size 2  4 cycles
-                    0x8d :absolute     ;; size 3  4 cycles
-                    0x9d :absolute-x   ;; size 3  5 cycles
-                    0x99 :absolute-y   ;; size 3  5 cycles
-                    0x81 :indirect-x   ;; size 2  6 cycles
-                    0x91 :indirect-y   ;; size 2  6 cycles
-                    }}
-
-{:opcode :STX
- :mnemonic       "STX"
- :help-text      "STore X register"
-
- :flags          "none"
-
- :addressing-modes {0x86 :zero-page    ;; size 2  3 cycles
-                    0x96 :zero-page-y  ;; size 2  4 cycles
-                    0x8e :absolute     ;; size 3  4 cycles
-                    }}
-
-{:opcode :STY
- :mnemonic       "STY"
- :help-text      "STore Y register"
-
- :flags          "none"
-
- :addressing-modes {0x84 :zero-page    ;; size 2  3 cycles
-                    0x94 :zero-page-x  ;; size 2  4 cycles
-                    0x8c :absolute     ;; size 3  4 cycles
-                    }}
-{:opcode :CPY
- :mnemonic       "CPY"
- :help-text      "ComPare Y register"
-
- :flags          "S Z C"
-
- :addressing-modes {0xc0 :immediate  ;; size 2  2 cycles
-                    0xc4 :zero-page  ;; size 2  3 cycles
-                    0xcc :absolute   ;; size 3  4 cycles
-                    }}
-
-
-] )
+    :addressing-modes {0x4a :accumulator  ;; size 1  2 cycles
+                       0x46 :zero-page    ;; size 2  5 cycles
+                       0x56 :zero-page-x  ;; size 2  6 cycles
+                       0x4e :absolute     ;; size 3  6 cycles
+                       0x5e :absolute-x   ;; size 3  7 cycles
+                       }}
+
+   {:opcode :NOP
+    :mnemonic       "NOP"
+    :help-text      "No OPeration"
+
+    :flags          "none"
+
+    :addressing-modes {0xea :implied  ;; size 1  2 cycles
+                       }} 
+
+   {:opcode :ORA
+    :mnemonic       "ORA"
+    :help-text      "bitwise OR with Accumulator"
+
+    :flags          "S Z"
+
+    :addressing-modes {0x09 :immediate    ;; size 2  2 cycles
+                       0x05 :zero-page    ;; size 2  3 cycles
+                       0x15 :zero-page-x  ;; size 2  4 cycles
+                       0x0d :absolute     ;; size 3  4 cycles
+                       0x1d :absolute-x   ;; size 3  4+ cycles
+                       0x19 :absolute-y   ;; size 3  4+ cycles
+                       0x01 :indirect-x   ;; size 2  6 cycles
+                       0x11 :indirect-y   ;; size 2  5+ cycles
+                       }}
+
+   {:opcode :ROL
+    :mnemonic       "ROL"
+    :help-text      "ROtate Left"
+
+    :flags          "S Z C"
+
+    :addressing-modes {0x2a :accumulator  ;; size 1  2 cycles
+                       0x26 :zero-page    ;; size 2  5 cycles
+                       0x36 :zero-page-x  ;; size 2  6 cycles
+                       0x2e :absolute     ;; size 3  6 cycles
+                       0x3e :absolute-x   ;; size 3  7 cycles
+                       }}
+
+   {:opcode :ROR
+    :mnemonic       "ROR"
+    :help-text      "ROtate Right"
+
+    :flags          "S Z C"
+
+    :addressing-modes {0x6a :accumulator  ;; size 1  2 cycles
+                       0x66 :zero-page    ;; size 2  5 cycles
+                       0x76 :zero-page-x  ;; size 2  6 cycles
+                       0x6e :absolute     ;; size 3  6 cycles
+                       0x7e :absolute-x   ;; size 3  7 cycles
+                       }}
+
+   {:opcode :RTI
+    :mnemonic       "RTI"
+    :help-text      "ReTurn from Interrupt"
+
+    :flags          "all"
+
+    :addressing-modes {0x40 :implied  ;; size 1  6 cycles
+                       }} 
+
+   {:opcode :RTS
+    :mnemonic       "RTS"
+    :help-text      "ReTurn from Subroutine"
+
+    :flags          "none"
+
+    :addressing-modes {0x60 :implied  ;; size 1  6 cycles
+                       }}
+
+   {:opcode :SBC
+    :mnemonic       "SBC"
+    :help-text      "SuBtract with Carry"
+
+    :flags          "S V Z C"
+
+    :addressing-modes {0xe9 :immediate    ;; size 2  2 cycles
+                       0xe5 :zero-page    ;; size 2  3 cycles
+                       0xf5 :zero-page-x  ;; size 2  4 cycles
+                       0xed :absolute     ;; size 3  4 cycles
+                       0xfd :absolute-x   ;; size 3  4+ cycles
+                       0xf9 :absolute-y   ;; size 3  4+ cycles
+                       0xe1 :indirect-x   ;; size 2  6 cycles
+                       0xf1 :indirect-y   ;; size 2  5+ cycles
+                       }}
+
+   {:opcode :STA
+    :mnemonic       "STA"
+    :help-text      "STore Accumulator"
+
+    :flags          "none"
+
+    :addressing-modes {0x85 :zero-page    ;; size 2  3 cycles
+                       0x95 :zero-page-x  ;; size 2  4 cycles
+                       0x8d :absolute     ;; size 3  4 cycles
+                       0x9d :absolute-x   ;; size 3  5 cycles
+                       0x99 :absolute-y   ;; size 3  5 cycles
+                       0x81 :indirect-x   ;; size 2  6 cycles
+                       0x91 :indirect-y   ;; size 2  6 cycles
+                       }}
+
+   {:opcode :STX
+    :mnemonic       "STX"
+    :help-text      "STore X register"
+
+    :flags          "none"
+
+    :addressing-modes {0x86 :zero-page    ;; size 2  3 cycles
+                       0x96 :zero-page-y  ;; size 2  4 cycles
+                       0x8e :absolute     ;; size 3  4 cycles
+                       }}
+
+   {:opcode :STY
+    :mnemonic       "STY"
+    :help-text      "STore Y register"
+
+    :flags          "none"
+
+    :addressing-modes {0x84 :zero-page    ;; size 2  3 cycles
+                       0x94 :zero-page-x  ;; size 2  4 cycles
+                       0x8c :absolute     ;; size 3  4 cycles
+                       }}
+   {:opcode :CPY
+    :mnemonic       "CPY"
+    :help-text      "ComPare Y register"
+
+    :flags          "S Z C"
+
+    :addressing-modes {0xc0 :immediate  ;; size 2  2 cycles
+                       0xc4 :zero-page  ;; size 2  3 cycles
+                       0xcc :absolute   ;; size 3  4 cycles
+                       }}
+
+
+   ] )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic opcode helper functions
@@ -504,158 +498,147 @@
 (defn- branch-if-not [m func yes no]
   (branch-if m #(not (func)) yes no))
 
+(defn- do-next [m {:keys [next-instruction]}]
+  (set-pc m next-instruction))
+
+(defn- push-stack-word [m push-val]
+  (assert false))
+
+(defn- pop-stack-word [m]
+  (assert false))
+
+(defn- pop-stack-word [m pop-val]
+  (assert false))
+
+(defn- pop-stack-word [m]
+  (assert false))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def opcode-implementations
   {:UNKNOWN (fn [m opcode-record]
-              (assert false)
-              m)
+              (assert false))
 
    :ADC (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record))
 
    :AND (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :ASL (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :BIT (fn [m opcode-record]
-          (assert false)
-          m)
-
-   :BRK (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :CMP (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :CPX (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :INC (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :INX (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :DEX (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :INY (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :DEY (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
 
    :EOR (fn [m opcode-record]
-          (assert false)
-          m)
+          (do-next m opcode-record) )
+
+   :LDA (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :LDX (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :LDY (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :LSR (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :NOP (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :ORA (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :ROL (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :ROR (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :SBC (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :STA (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :STX (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :STY (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   :CPY (fn [m opcode-record]
+          (do-next m opcode-record) )
+
+   ;; Done :)
+   :BPL (fn [ m opcode-record ]
+          (branch-if-not m #(get-n (:cpu m))))
+
+   :BMI (fn [ m opcode-record ]
+          (branch-if m #(get-n (:cpu m))))
+
+   :BNE (fn [ m opcode-record ]
+          (branch-if-not m #(get-z (:cpu m))))
+
+   :BEQ (fn [ m opcode-record ]
+          (branch-if m #(get-z (:cpu m))))
+
+   :BCC (fn [ m opcode-record ]
+          (branch-if-not m #(get-c (:cpu m))))
+
+   :BCS (fn [ m opcode-record ]
+          (branch-if m #(get-c (:cpu m))))
+
+   :BVC (fn [ m opcode-record ]
+          (branch-if-not m #(get-v (:cpu m))))
+
+   :BVS (fn [ m opcode-record ]
+          (branch-if m #(get-v (:cpu m))))
 
    :JMP (fn [m opcode-record]
           (set-pc m (:operand opcode-record)))
 
    :JSR (fn [m opcode-record]
-          (assert false)
-          m)
+          (push-stack-word (:next-instruction opcode-record))
+          (set-pc m (:operand opcode-record)))
 
-   :LDA (fn [m opcode-record]
-          (assert false)
-          m)
+   :RTS  (fn [m _]
+           (set-pc m (pop-stack-word m)))
 
-   :LDX (fn [m opcode-record]
-          (assert false)
-          m)
+   ;; TODO
 
-   :LDY (fn [m opcode-record]
-          (assert false)
-          m)
-
-   :LSR (fn [m opcode-record]
-          (assert false)
-          m)
-
-   :NOP (fn [m opcode-record]
-          (assert false)
-          m)
-
-   :ORA (fn [m opcode-record]
-          (assert false)
-          m)
-
-   :ROL (fn [m opcode-record]
-          (assert false)
-          m)
-
-   :ROR (fn [m opcode-record]
+   :BRK (fn [m opcode-record]
           (assert false)
           m)
 
    :RTI (fn [m opcode-record]
           (assert false)
-          m)
+          m )
 
-   :RTS (fn [m opcode-record]
-          (assert false)
-          m)
-
-   :SBC (fn [m opcode-record]
-          (assert false)
-          m)
-
-   :STA (fn [m opcode-record]
-          (assert false)
-          m)
-
-    :STX (fn [m opcode-record]
-          (assert false)
-          m)
-
-    :STY (fn [m opcode-record]
-          (assert false)
-          m)
-
-    :CPY (fn [m opcode-record]
-          (assert false)
-          m)
-
-    :BPL (fn [ m opcode-record ]
-          (assert false)
-          m)
-
-    :BMI (fn [ m opcode-record ]
-          (assert false)
-          m)
-
-    :BNE (fn [ m opcode-record ]
-           (branch-if-not m #(get-n (:cpu m))))
-
-    :BEQ (fn [ m opcode-record ]
-           (branch-if m #(get-n (:cpu m))))
-
-    :BCC (fn [ m opcode-record ]
-           (branch-if-not m #(get-c (:cpu m))))
-
-    :BCS (fn [ m opcode-record ]
-           (branch-if m #(get-c (:cpu m))))
-
-    :BVC (fn [ m opcode-record ]
-           (branch-if-not m #(get-v (:cpu m))))
-
-    :BVS (fn [ m opcode-record ]
-           (branch-if m #(get-v (:cpu m))))
-})
-
+   })
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper utils for implementation of addressing modes
@@ -686,7 +669,7 @@
 (def addr-mode-implementations
   {:unknown      (fn [_ ^Integer addr]
                    {:next-instruction (next-ins :unknown addr)})
-   
+
    :accumulator  (fn [m ^Integer addr]
                    (ret-with-reg-val m addr :accumulator :A))
 
@@ -698,7 +681,7 @@
 
    :implied      (fn [m addr]
                    { :next-instruction (next-ins :implied addr)})
-   
+
    :absolute     (fn [m ^Integer addr]
                    (->> (word-operand m addr)
                         (ret-with-val :absolute m)))
@@ -709,9 +692,9 @@
                         (ret-with-val :absolute-y m))) 
 
    :absolute-x   (fn [m ^Integer addr]
-                  (->> (word-operand m addr) 
-                       (+ (-> m :cpu :X))
-                       (ret-with-val :absolute-x m)))
+                   (->> (word-operand m addr) 
+                        (+ (-> m :cpu :X))
+                        (ret-with-val :absolute-x m)))
 
    :immediate    (fn [m ^Integer addr]
                    (->> (inc addr)
@@ -746,13 +729,12 @@
    ;; TODO Need to make sure address is a short
    ;;      probably best to do in ret-with-val
 
-  :branch        (fn [m ^Integer addr]
-                   (let [bval (byte-operand m addr)
-                         delta (if (> bval 127)
-                                 (- 0 (- bval 127))
-                                 bval)]
-                    (ret-with-val m :branch (+ addr delta)) ))}
-  )
+   :branch        (fn [m ^Integer addr]
+                    (let [bval (byte-operand m addr)
+                          delta (if (> bval 127)
+                                  (- 0 (- bval 127))
+                                  bval)]
+                      (ret-with-val m :branch (+ addr delta)) ))})
 
 (def unknown-opcode 
   {:opcode :UNKNOWN
@@ -760,12 +742,12 @@
    :help-text      "UKNONWN opocde"
    :flags          "none" })
 
-
 (defn- mk-opcode-func [addr-mode-id opocde-id]
   (let [addr-mode-func (addr-mode-id addr-mode-implementations)
         opcode-func (opocde-id opcode-implementations) ]
     (fn [m]
-      (->> (-> :cpu :PC)
+      (println "got here!")
+      (->> (get-pc m)
            (addr-mode-func m)
            (opcode-func m)))))
 

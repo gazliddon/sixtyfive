@@ -1,7 +1,7 @@
 (ns sixtyfive.machine
   (:require [sixtyfive.cpu :refer [mk-cpu]]
             [sixtyfive.prg :as PRG]
-            [sixtyfive.opcodes6502 :refer [get-opcode]]
+            [sixtyfive.opcodes6502 :as Opcode]
             [sixtyfive.memory :refer [mk-byte-memory]]
             [sixtyfive.protocols :refer :all]))
 
@@ -54,19 +54,24 @@
 
 (defn decode-instruction [^Machine m ^Integer addr]
   (let [opcode-hex (read-byte m addr)
-        opcode (get-opcode opcode-hex)
-        operand-fetcher (opocode->operand-fetcher  opcode)
-        ]
+        opcode (Opcode/get-opcode opcode-hex)
+        operand-fetcher (opocode->operand-fetcher opcode) ]
     {:opcode-hex opcode-hex
      :opcode opcode
      :operand-fetcher operand-fetcher}))
+
 
 (defn decode-instruction->pc [^Machine m]
   (->> (get-pc m)
        (decode-instruction m)))
 
+(defn exec-instruction->pc [^Machine m]
+  (let [opcode-hex (read-byte m (get-pc m))
+        opcode (Opcode/get-opcode opcode-hex) ]
+    ( (:func opcode) m)))
+
 (-> (mk-machine)
     (PRG/load-prg prg)
-    (decode-instruction->pc))
+    (exec-instruction->pc ))
 
 
