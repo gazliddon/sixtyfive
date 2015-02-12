@@ -555,6 +555,7 @@
           (do-next m opcode-record) )
 
    :LDA (fn [m opcode-record]
+          (println "LDA!")
           (do-next m opcode-record) )
 
    :LDX (fn [m opcode-record]
@@ -644,8 +645,7 @@
 ;; Helper utils for implementation of addressing modes
 (defn- next-ins [addr-mode addr]
   (->> (addr-mode addressing-modes)
-       (:size)  (fn [m opcode-ret]
-                  m)
+       (:size) 
        (+ addr)))
 
 (defn- ret-with-val [m addr-mode addr]
@@ -697,8 +697,9 @@
                         (ret-with-val :absolute-x m)))
 
    :immediate    (fn [m ^Integer addr]
+                   (println (str "Trying immediate " addr))
                    (->> (inc addr)
-                        (ret-with-val :immediate m)))
+                        (ret-with-val m :immediate)))
 
    :indirect     (fn [m ^Integer addr]
                    (->> (word-operand m addr)
@@ -746,10 +747,24 @@
   (let [addr-mode-func (addr-mode-id addr-mode-implementations)
         opcode-func (opocde-id opcode-implementations) ]
     (fn [m]
-      (println "got here!")
-      (->> (get-pc m)
-           (addr-mode-func m)
-           (opcode-func m)))))
+      (let [pc  (get-pc m)
+            _ (println "Trying this")
+            addr-record (addr-mode-func m pc)
+            _ (println "Tried that")
+            
+            ]
+        (println "got here!")
+        (println addr-record)
+        (println pc)
+        ))))
+
+(defn- mk-opcode-func' [addr-mode-id opocde-id]
+  (let [addr-mode-func (addr-mode-id addr-mode-implementations)
+        opcode-func (opocde-id opcode-implementations) ]
+    (fn [m]
+      (let [pc  (get-pc m)
+            addr-record (addr-mode-func m pc)]
+        (opcode-func m addr-record)))))
 
 (defn- mk-opcode-entry [opcode addressing-mode addressing-modes]
   (merge 
